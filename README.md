@@ -7,9 +7,9 @@ related features.
 ### Currently Features
 - Turnip price prediction(*Alpha*)
 - Turnip price tracking(*Alpha*)
+- Villager Lookup
 
 ### Coming soon
-- Villager Lookup
 - Fossil per user list
 - Event Tracker
 - Fish Lookup
