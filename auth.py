@@ -2,6 +2,8 @@
 This file holds the authentication keys
 for the applications along with configuring secrets for different
 systems turnip bot communicates with.
+
+DO NOT ACCIDENTALLY COMMIT THIS FILE, BAD THINGS WILL HAPPEN!
 """
 
 # Following are Discord Authentication
