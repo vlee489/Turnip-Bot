@@ -34,9 +34,9 @@ class Turnips(commands.Cog):
 
     @commands.command(name='addTurnipPrice', help="Add Turnip price data for a specific date & time. \n"
                                                   "<date> : The date to add the price for in DD/MM/YYYY\n"
-                                                  "<Time> : Either PM or AM.\n "
+                                                  "<Time> : Either PM or AM.\n"
                                                   "<bells> : The bells you get for selling turnips.")
-    async def currentTurnipSummary(self, ctx, date, time, bells):
+    async def addSpecificPrice(self, ctx, date, time, bells):
         try:
             response = turnipCalculator.addSpecifiedData(ctx.message.author.id, date, time, bells)
         except Exception as error:
