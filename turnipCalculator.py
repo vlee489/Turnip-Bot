@@ -8,8 +8,7 @@ import json
 import boto3
 import auth
 import turnips.meta
-from botocore.exceptions import ClientError
-from boto3.dynamodb.conditions import Key, Attr
+from boto3.dynamodb.conditions import Key
 import decimal
 import datetime
 
@@ -132,6 +131,15 @@ class TurnipClass:
     Saturday_PM = None
 
     def addPrice(self, period, bells):
+        """
+        Add the price and period to objects
+        :param period: int
+            date period
+        :param bells: int
+            Sale price
+        :return: boolean
+            if successful
+        """
         try:
             bells = int(bells)
         except ValueError:
@@ -164,8 +172,14 @@ class TurnipClass:
             self.Saturday_PM = bells
         else:
             raise ValueError("period doesn't exist")
+        return True
 
     def createModel(self):
+        """
+        Creates the model form the object fields
+        :return: turnips.meta.MetaModel
+            turnip model
+        """
         if self.Sunday_AM is not None:
             turnipModel = turnips.meta.MetaModel.blank(self.Sunday_AM)
         else:
@@ -234,6 +248,17 @@ def createTurnipModel(discordID, date):
 
 
 def addBuyPrice(discordID, date, bells):
+    """
+    Ass the buying of turnips price to DB
+    :param discordID: str
+        user's DiscordID
+    :param date: datetime
+        the date of when the turnips where bought
+    :param bells: int
+        The cost of the turnips
+    :return: boolean
+        if successful
+    """
     # Works out the date for the beginning of the week
     if date.strftime('%A') == 'Sunday':
         date = date + datetime.timedelta(days=2)
@@ -334,6 +359,15 @@ def addSpecifiedData(discordID, date, time, bells):
 
 
 def addPurchasePrice(discordID, bells):
+    """
+    Add the turnip price to the DB
+    :param discordID: str
+        User's discordID
+    :param bells: int
+        The cost of turnips
+    :return: boolean
+        if successful
+    """
     if not bells.isdigit():
         raise Exception("Bells must be given as a number! E.g 1-9")
     try:
