@@ -22,7 +22,6 @@ class Villager(commands.Cog):
                 await ctx.send("Error in finding villager")
                 return
             jsonData = api_response.json()
-            print(jsonData)
             embedded = discord.Embed(title=jsonData['name'], description=jsonData['message'], url=jsonData['link'],
                                      color=0xCF70D3)
             embedded.set_thumbnail(url=jsonData['image'])
