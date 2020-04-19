@@ -11,7 +11,8 @@ from discord.ext import commands
 TOKEN = auth.discord_Token
 
 extensions = [
-    'turnipsPredictor'
+    'turnipsPredictor',
+    'villager'
 ]
 
 bot = commands.Bot(command_prefix='>')
