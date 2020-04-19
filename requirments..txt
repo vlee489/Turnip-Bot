@@ -1,2 +1,3 @@
 discord.py
 boto3
+-e git+https://gitlab.com/nanoNago/turnips.git#egg=turnips

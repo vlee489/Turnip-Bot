@@ -12,7 +12,7 @@ splatnet2_login_link = ""
 splatoon2MapListAPIEndpoint = "https://splatoon2.ink/data/"
 
 # AWS DynamoDB configuration
-region_name = "eu-west"
+region_name = "eu-west-1"
 endpoint_URL = "http://localhost:5050"
 turnipDB_Table = "turnipPrices"
 
