@@ -1,3 +1,6 @@
+"""
+Contains the cog for the turnip commands.
+"""
 from discord.ext import commands
 import turnipCalculator
 import datetime
