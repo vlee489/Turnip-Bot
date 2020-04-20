@@ -12,7 +12,8 @@ class Turnips(commands.Cog):
 
     @commands.command(name='ap', help="Adds today's price to the turnip  "
                                       "\n <Time> : Either PM or AM "
-                                      "\n <bells> : The bells you get for selling turnips")
+                                      "\n <bells> : The bells you get for selling turnips",
+                      aliases=['AddPrice', 'addprice'])
     async def addTurnipPrice(self, ctx, time, bells):
         response = "An Error Has Occured!"
         time = time.upper()  # Turns the time given into Uppercase
@@ -38,7 +39,8 @@ class Turnips(commands.Cog):
     @commands.command(name='addTurnipPrice', help="Add Turnip price data for a specific date & time. \n"
                                                   "<date> : The date to add the price for in DD/MM/YYYY\n"
                                                   "<Time> : Either PM or AM.\n"
-                                                  "<bells> : The bells you get for selling turnips.")
+                                                  "<bells> : The bells you get for selling turnips.",
+                      aliases=['atp', 'addturnipprice'])
     async def addSpecificPrice(self, ctx, date, time, bells):
         try:
             response = turnipCalculator.addSpecifiedData(ctx.message.author.id, date, time, bells)
@@ -47,7 +49,8 @@ class Turnips(commands.Cog):
             return
         await ctx.send(response)
 
-    @commands.command(name='ts', help="Get your Turnip Summary for the next week")
+    @commands.command(name='ts', help="Get your Turnip Summary for the next week",
+                      aliases=['TurnipSummary', 'turnipsummary'])
     async def currentTurnipSummary(self, ctx):
         try:
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
@@ -59,7 +62,8 @@ class Turnips(commands.Cog):
 
     @commands.command(name='setBuyPrice',
                       help="Set the Price you bought the turnips for from Daisy Mae this week.\n"
-                           "<bells> : The amount of bells each turnip cost.", )
+                           "<bells> : The amount of bells each turnip cost.",
+                      aliases=['setbuyprice', 'sbp'])
     async def setBuyPrice(self, ctx, bells):
         try:
             response = turnipCalculator.addPurchasePrice(ctx.message.author.id, bells)

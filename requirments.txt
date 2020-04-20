@@ -1,3 +1,4 @@
 discord.py
 boto3
 setuptools_scm
+pyjokes
