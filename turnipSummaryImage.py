@@ -16,8 +16,6 @@ client = session.client('s3', region_name=auth.aws_region_name, endpoint_url=aut
 transfer = S3Transfer(client)
 
 heading = "{:15} {:21} {:9}".format("Price(Bells)", "Likely Price(Bells)", "Chance(%)")
-image = Image.open('files/Template.png')
-draw = ImageDraw.Draw(image)
 font = ImageFont.truetype("files/Roboto-Regular.ttf", size=20)
 subHeadingFont = ImageFont.truetype("files/Roboto-Regular.ttf", size=20)
 headingFont = ImageFont.truetype("files/Roboto-Bold.ttf", size=24)
@@ -54,6 +52,8 @@ class SummaryImage:
             returns nothing
         """
         y = 55
+        image = Image.open('files/Template.png')
+        draw = ImageDraw.Draw(image)
 
         for periods in self.turnip_data:
             period = periods.replace("_", " ", 1)
