@@ -4,6 +4,8 @@ Contains the cog for the turnip commands.
 from discord.ext import commands
 import turnipCalculator
 import datetime
+import turnipSummaryImage
+import discord
 
 
 class Turnips(commands.Cog):
@@ -54,11 +56,48 @@ class Turnips(commands.Cog):
     async def currentTurnipSummary(self, ctx):
         try:
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
-        except Exception as error:
-            await ctx.send(error)
+            newImage = turnipSummaryImage.SummaryImage(report, ctx.message.author.id)
+            newImage.createImage()
+            img_URL = newImage.uploadImage()
+            embedded = discord.Embed(title="Turnip Prediction", description="Your current turnip prediction",
+                                     color=0xCF70D3)
+            embedded.set_author(name="Turnip Bot",
+                                url="https://github.com/vlee489/Turnip-Bot/",
+                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+            embedded.set_image(url=img_URL)
+            embedded.set_footer(text="Turnip Bot @ {}".format(datetime.datetime.now().strftime('%H:%M')))
+            await ctx.send(embed=embedded)
+        except AttributeError:
+            await ctx.send("Failed to create image of summary >.<\n "
+                           "Issue has been reported to operator.\n")
+        except Exception:
+            await ctx.send("Internal Error, sorry >.<\n "
+                           "Issue has been reported to operator.\n"
+                           "(ts.catch.rest)")
             return
 
-        await ctx.send("Turnip Summary for this week:\n {}".format(report))
+    @commands.command(name='tst', help="Get your Turnip Summary for the next week as text\n"
+                                       "This is built for people using screen readers, use <ts if you can",
+                      aliases=['TurnipSummaryText', 'turnipsummarytext'])
+    async def currentTurnipSummaryText(self, ctx):
+        try:
+            report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
+            reply = "Turnip Summary\n```"
+            reply = reply + "    {:15} {:13} {:13} {:6}\n".format('Time', 'Price(Bells)', 'Likely(bells)', 'Odds(%)')
+            for periods in report:
+                reply = reply + "    {:15} {:13} {:13} {:6}\n".format(periods,
+                                                                    report[periods]['price'],
+                                                                    report[periods]['likely'],
+                                                                    report[periods]['chance'])
+            reply = reply + '```'
+            await ctx.send(reply)
+        except Exception as e:
+            print(e)
+            await ctx.send("Internal Error, sorry >.<\n "
+                           "Issue has been reported to operator.\n"
+                           "(ts.catch.rest)")
+            return
+
 
     @commands.command(name='setBuyPrice',
                       help="Set the Price you bought the turnips for from Daisy Mae this week.\n"
