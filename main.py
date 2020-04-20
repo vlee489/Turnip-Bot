@@ -15,7 +15,7 @@ extensions = [
     'villager'
 ]
 
-bot = commands.Bot(command_prefix='>')
+bot = commands.Bot(command_prefix='<')
 
 
 @bot.event
