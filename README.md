@@ -18,7 +18,7 @@ related features.
 - More planned!
 
 ## Help
-All current commands are documented in the help section of the bot `>help`, as well as the 
+All current commands are documented in the help section of the bot `<help`, as well as the 
 [Github Wiki](https://github.com/vlee489/Turnip-Bot/wiki)
 
 ## Support Me!
