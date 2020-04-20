@@ -318,7 +318,8 @@ def createCurrentSummary(discordID):
         return model.summary()
     except AttributeError:
         raise Exception("No data available to make model")
-    except LookupError:
+    except LookupError as e:
+        print(e)
         raise Exception("Internal Error, sorry >.< \n Issue has been reported to operator. \n (Too Many Responses)")
 
 
