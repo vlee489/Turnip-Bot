@@ -15,7 +15,7 @@ extensions = [
     'villager'
 ]
 
-bot = commands.Bot(command_prefix='>')
+bot = commands.Bot(command_prefix='<')
 
 
 @bot.event
@@ -32,13 +32,13 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Command doesn't Exist!\n"
-                       "You can use `>help` to see what commands there are")
+                       "You can use `<help` to see what commands there are")
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Missing data, you got got to enter something after the command!\n"
-                       "You can use `>help` for help")
+                       "You can use `<help` for help")
     else:
         await ctx.send("Invalid command!\n"
-                       "You can use `>help` to see what commands there are")
+                       "You can use `<help` to see what commands there are")
 
 
 # Runs the whole show
