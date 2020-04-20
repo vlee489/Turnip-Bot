@@ -8,12 +8,15 @@ related features.
 - Turnip price prediction(*Alpha*)
 - Turnip price tracking(*Alpha*)
 - Villager Lookup
+- Fish Lookup (*Beta*)
+- Bug Lookup (*Beta*)
+- Fossil Lookup (*Beta*)
+- Event Tracker (*Beta*)
+- Jokes generator
 
 ### Coming soon
 - Fossil per user list
-- Event Tracker
-- Fish Lookup
-- Bug Lookup
+- Turnip Prediction Graph
 - Splatoon 2 Map Rotations
 - More planned!
 
@@ -34,7 +37,7 @@ Requirements
 - Server with the following
     - Python 3.8 or newer
     - AWS Command Line Interface (*& configured*)
-    - pip3
+    - pip3.8
 - AWS DynamoDB noSQL database
 - AWS S3 Bucket *or* Digital Ocean Spaces
 
