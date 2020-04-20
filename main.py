@@ -12,7 +12,8 @@ TOKEN = auth.discord_Token
 
 extensions = [
     'turnipsPredictor',
-    'villager'
+    'lookup',
+    'others'
 ]
 
 bot = commands.Bot(command_prefix='<')
@@ -24,21 +25,15 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    await bot.change_presence(activity=discord.Game(name="Turnip Stock Market"))
+    await bot.change_presence(activity=discord.Game(name="<help to get started on the Turnip Stock Market"))
 
 
 # Handles incorrect input from user
 @bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        await ctx.send("Command doesn't Exist!\n"
-                       "You can use `<help` to see what commands there are")
-    elif isinstance(error, commands.MissingRequiredArgument):
+    if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Missing data, you got got to enter something after the command!\n"
                        "You can use `<help` for help")
-    else:
-        await ctx.send("Invalid command!\n"
-                       "You can use `<help` to see what commands there are")
 
 
 # Runs the whole show
