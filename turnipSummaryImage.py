@@ -23,6 +23,7 @@ transfer = S3Transfer(client)
 font = ImageFont.truetype("files/RobotoRegular.ttf", size=20)
 subHeadingFont = ImageFont.truetype("files/RobotoRegular.ttf", size=20)
 headingFont = ImageFont.truetype("files/RobotoBold.ttf", size=24)
+percentFont = ImageFont.truetype("files/RobotoRegular.ttf", size=18)
 colour = '#99AAB5'
 headingColour = '#FFFFFF'
 subHeadingColour = '#CCD5DA'
@@ -146,6 +147,17 @@ class SummaryImage:
         newImage = templateImage.copy()
         # paste graph onto template with transparency
         newImage.paste(graphImage, (x, 55), graphImage)
+        # Add in %ages
+        draw = ImageDraw.Draw(newImage)
+        y = 31
+        draw.text((714, y), "Chance(%)", fill=headingColour, font=headingFont)
+        y = y + 28
+        for periods in self.turnip_data:
+            period = periods.replace("_", " ", 1)
+            draw.text((714, y), period, fill=subHeadingColour, font=percentFont)
+            y = y + 23
+            draw.text((714, y), "    {}".format(self.turnip_data[periods]['chance']), fill=colour, font=percentFont)
+            y = y + 27
         newImage.save("tempHolding/Graph{}".format(self.fileName))
         self.graphCreated = True
         os.remove("tempHolding/graph/{}".format(self.fileName))  # Remove the temp image from matplotlib
