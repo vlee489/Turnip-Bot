@@ -6,6 +6,7 @@ from discord.ext import commands
 import requests
 import auth
 import discord
+import datetime
 
 
 class Lookup(commands.Cog):
@@ -17,7 +18,7 @@ class Lookup(commands.Cog):
                            "<villager>: The villager you want to search for",
                       aliases=['Villager'])
     async def villagerOverview(self, ctx, villager):
-        villager_URL = "https://nookipedia.com/api/villager/{}/".format(villager.title())
+        villager_URL = "https://nookipedia.com/api/villager/{}/".format((villager.title()).replace("'", "%27"))
         try:
             api_response = requests.get(villager_URL, headers={"X-API-Key": auth.nookipedia_API_key})
             if api_response.status_code != 200:
@@ -43,11 +44,17 @@ class Lookup(commands.Cog):
             embedded.set_footer(text="Info from nookipedia.com")
             await ctx.send(embed=embedded)
             return
-        except ValueError:
+        except ValueError as e:
             await ctx.send("Unable to read data from Nookipedia")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
             await ctx.send("Unable to connect to Nookipedia")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
 
     @commands.command(name='critter',
@@ -81,11 +88,17 @@ class Lookup(commands.Cog):
             embedded.set_footer(text="Info from nookipedia.com")
             await ctx.send(embed=embedded)
             return
-        except ValueError:
+        except ValueError as e:
             await ctx.send("Unable to read data from Nookipedia")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
             await ctx.send("Unable to connect to Nookipedia")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
 
     @commands.command(name='fossil',
@@ -116,11 +129,17 @@ class Lookup(commands.Cog):
             embedded.add_field(name="Scientific Name:", value=jsonData['scientific-name'], inline=True)
             embedded.set_footer(text="Info from nookipedia.com")
             await ctx.send(embed=embedded)
-        except ValueError:
+        except ValueError as e:
             await ctx.send("Unable to read data from Nookipedia")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
             await ctx.send("Unable to connect to Nookipedia")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
 
     @commands.command(name='eventsToday',
@@ -145,11 +164,17 @@ class Lookup(commands.Cog):
                 embedded.add_field(name="Events {}:".format(x + 1), value=jsonData['events'][x], inline=False)
             embedded.set_footer(text="Info from nookipedia.com")
             await ctx.send(embed=embedded)
-        except ValueError:
+        except ValueError as e:
             await ctx.send("Unable to read data from Nookipedia")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
             await ctx.send("Unable to connect to Nookipedia")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
 
 
