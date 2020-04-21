@@ -151,7 +151,7 @@ class SummaryImage:
         draw = ImageDraw.Draw(newImage)
         y = 31
         draw.text((714, y), "Chance(%)", fill=headingColour, font=headingFont)
-        y = y + 28
+        y = y + 34
         for periods in self.turnip_data:
             period = periods.replace("_", " ", 1)
             draw.text((714, y), period, fill=subHeadingColour, font=percentFont)

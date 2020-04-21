@@ -5,3 +5,4 @@ pyjokes
 pillow
 matplotlib
 numpy
+requests
