@@ -86,9 +86,9 @@ class Turnips(commands.Cog):
             reply = reply + "    {:15} {:13} {:13} {:6}\n".format('Time', 'Price(Bells)', 'Likely(bells)', 'Odds(%)')
             for periods in report:
                 reply = reply + "    {:15} {:13} {:13} {:6}\n".format(periods,
-                                                                    report[periods]['price'],
-                                                                    report[periods]['likely'],
-                                                                    report[periods]['chance'])
+                                                                      report[periods]['price'],
+                                                                      report[periods]['likely'],
+                                                                      report[periods]['chance'])
             reply = reply + '```'
             await ctx.send(reply)
         except Exception as e:
@@ -98,6 +98,31 @@ class Turnips(commands.Cog):
                            "(ts.catch.rest)")
             return
 
+    @commands.command(name='tsgraph',
+                      help="Set the Price you bought the turnips for from Daisy Mae this week.\n",
+                      aliases=['tsg', 'turnipsummarygraph', 'turnipSummaryGraph'])
+    async def tsgraph(self, ctx):
+        try:
+            report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
+            newImage = turnipSummaryImage.SummaryImage(report, ctx.message.author.id)
+            newImage.createGraph()
+            img_URL = newImage.uploadGraphImage()
+            embedded = discord.Embed(title="Turnip Prediction Graph", description="Your current turnip prediction",
+                                     color=0xCF70D3)
+            embedded.set_author(name="Turnip Bot",
+                                url="https://github.com/vlee489/Turnip-Bot/",
+                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+            embedded.set_image(url=img_URL)
+            embedded.set_footer(text="Turnip Bot @ {}".format(datetime.datetime.now().strftime('%H:%M')))
+            await ctx.send(embed=embedded)
+        except AttributeError:
+            await ctx.send("Failed to create image of summary >.<\n "
+                           "Issue has been reported to operator.\n")
+        except Exception:
+            await ctx.send("Internal Error, sorry >.<\n "
+                           "Issue has been reported to operator.\n"
+                           "(ts.catch.rest)")
+            return
 
     @commands.command(name='setBuyPrice',
                       help="Set the Price you bought the turnips for from Daisy Mae this week.\n"

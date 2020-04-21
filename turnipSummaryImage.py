@@ -36,11 +36,9 @@ matplotlib.rcParams['text.color'] = colour
 matplotlib.rcParams['axes.labelcolor'] = colour
 matplotlib.rcParams['xtick.color'] = subHeadingColour
 matplotlib.rcParams['ytick.color'] = subHeadingColour
-matplotlib.rcParams['axes.facecolor'] = "#2C2F33"
-matplotlib.rcParams['axes.edgecolor'] = "#2C2F33"
-matplotlib.rcParams['savefig.facecolor'] = "#2C2F33"
 prop = fm.FontProperties(fname="files/RobotoRegular.ttf")
 matplotlib.rc('axes', edgecolor=headingColour)
+basewidth = 658
 
 
 class SummaryImage:
@@ -136,12 +134,18 @@ class SummaryImage:
         plt.legend(handles=[pricePatch, likelyPatch], bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
            ncol=2, mode="expand", borderaxespad=0., framealpha=0, prop=prop)
         # Save image to temp location
-        plt.savefig("tempHolding/graph/{}".format(self.fileName), bbox_inches='tight')
+        plt.savefig("tempHolding/graph/{}".format(self.fileName), transparent=True, bbox_inches='tight')
+
         # Uses Pillow to form final image with boarder
         templateImage = Image.open('files/graphTemplate.png')
+        # We load in the graph image and resize it to make it fit into the middle of the template
         graphImage = Image.open("tempHolding/graph/{}".format(self.fileName))
+        widthPercent = (basewidth / float(graphImage.size[0]))
+        heightSize = int((float(graphImage.size[1]) * float(widthPercent)))
+        graphImage = graphImage.resize((basewidth, heightSize), Image.ANTIALIAS)
         newImage = templateImage.copy()
-        newImage.paste(graphImage, (x, 55))
+        # paste graph onto template with transparency
+        newImage.paste(graphImage, (x, 55), graphImage)
         newImage.save("tempHolding/Graph{}".format(self.fileName))
         self.graphCreated = True
         os.remove("tempHolding/graph/{}".format(self.fileName))  # Remove the temp image from matplotlib
