@@ -15,7 +15,6 @@ client = session.client('s3', region_name=auth.aws_region_name, endpoint_url=aut
                         aws_access_key_id=auth.aws_access_key_id, aws_secret_access_key=auth.aws_secret_access_key)
 transfer = S3Transfer(client)
 
-heading = "{:15} {:21} {:9}".format("Price(Bells)", "Likely Price(Bells)", "Chance(%)")
 font = ImageFont.truetype("files/Roboto-Regular.ttf", size=20)
 subHeadingFont = ImageFont.truetype("files/Roboto-Regular.ttf", size=20)
 headingFont = ImageFont.truetype("files/Roboto-Bold.ttf", size=24)
@@ -23,6 +22,8 @@ colour = '#99AAB5'
 headingColour = '#FFFFFF'
 subHeadingColour = '#CCD5DA'
 x = 21
+x2 = 150
+x3 = 330
 
 
 class SummaryImage:
@@ -59,12 +60,14 @@ class SummaryImage:
             period = periods.replace("_", " ", 1)
             draw.text((x, y), period, fill=headingColour, font=headingFont)
             y = y + 25
-            draw.text((x, y), heading, fill=subHeadingColour, font=subHeadingFont)
+            draw.text((x, y), "Price(Bells)", fill=subHeadingColour, font=subHeadingFont)
+            draw.text((x2, y), "Likely Price(Bells)", fill=subHeadingColour, font=subHeadingFont)
+            draw.text((x3, y), "Chance(%)", fill=subHeadingColour, font=subHeadingFont)
             y = y + 25
-            dataString = "{:23} {:29} {:6}".format(self.turnip_data[periods]['price'],
-                                                   self.turnip_data[periods]['likely'],
-                                                   self.turnip_data[periods]['chance'])
-            draw.text((x, y), dataString, fill=colour, font=font)
+            draw.text((x, y), self.turnip_data[periods]['price'], fill=colour, font=font)
+            draw.text((x2, y), self.turnip_data[periods]['likely'], fill=colour, font=font)
+            draw.text((x3, y), self.turnip_data[periods]['chance'], fill=colour, font=font)
+
             y = y + 29
 
         image.save("tempHolding/{}".format(self.fileName), optimize=True, quality=20)
