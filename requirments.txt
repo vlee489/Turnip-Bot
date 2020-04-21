@@ -3,3 +3,6 @@ boto3
 setuptools_scm
 pyjokes
 pillow
+matplotlib
+numpy
+requests

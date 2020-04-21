@@ -48,6 +48,9 @@ class Turnips(commands.Cog):
             response = turnipCalculator.addSpecifiedData(ctx.message.author.id, date, time, bells)
         except Exception as error:
             await ctx.send(error)
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           error))
             return
         await ctx.send(response)
 
@@ -67,13 +70,20 @@ class Turnips(commands.Cog):
             embedded.set_image(url=img_URL)
             embedded.set_footer(text="Turnip Bot @ {}".format(datetime.datetime.now().strftime('%H:%M')))
             await ctx.send(embed=embedded)
-        except AttributeError:
+        except AttributeError as e:
             await ctx.send("Failed to create image of summary >.<\n "
                            "Issue has been reported to operator.\n")
-        except Exception:
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
+            return
+        except Exception as e:
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
                            "(ts.catch.rest)")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             return
 
     @commands.command(name='tst', help="Get your Turnip Summary for the next week as text\n"
@@ -86,18 +96,51 @@ class Turnips(commands.Cog):
             reply = reply + "    {:15} {:13} {:13} {:6}\n".format('Time', 'Price(Bells)', 'Likely(bells)', 'Odds(%)')
             for periods in report:
                 reply = reply + "    {:15} {:13} {:13} {:6}\n".format(periods,
-                                                                    report[periods]['price'],
-                                                                    report[periods]['likely'],
-                                                                    report[periods]['chance'])
+                                                                      report[periods]['price'],
+                                                                      report[periods]['likely'],
+                                                                      report[periods]['chance'])
             reply = reply + '```'
             await ctx.send(reply)
         except Exception as e:
-            print(e)
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
                            "(ts.catch.rest)")
             return
 
+    @commands.command(name='tsgraph',
+                      help="Set the Price you bought the turnips for from Daisy Mae this week.\n",
+                      aliases=['tsg', 'turnipsummarygraph', 'turnipSummaryGraph'])
+    async def tsgraph(self, ctx):
+        try:
+            report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
+            newImage = turnipSummaryImage.SummaryImage(report, ctx.message.author.id)
+            newImage.createGraph()
+            img_URL = newImage.uploadGraphImage()
+            embedded = discord.Embed(title="Turnip Prediction Graph", description="Your current turnip prediction",
+                                     color=0xCF70D3)
+            embedded.set_author(name="Turnip Bot",
+                                url="https://github.com/vlee489/Turnip-Bot/",
+                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+            embedded.set_image(url=img_URL)
+            embedded.set_footer(text="Turnip Bot @ {}".format(datetime.datetime.now().strftime('%H:%M')))
+            await ctx.send(embed=embedded)
+        except AttributeError as e:
+            await ctx.send("Failed to create image of summary >.<\n "
+                           "Issue has been reported to operator.\n")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
+        except Exception as e:
+            await ctx.send("Internal Error, sorry >.<\n "
+                           "Issue has been reported to operator.\n"
+                           "(ts.catch.rest)")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
+            return
 
     @commands.command(name='setBuyPrice',
                       help="Set the Price you bought the turnips for from Daisy Mae this week.\n"
@@ -108,6 +151,9 @@ class Turnips(commands.Cog):
             response = turnipCalculator.addPurchasePrice(ctx.message.author.id, bells)
         except Exception as error:
             await ctx.send(error)
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           error))
             return
         await ctx.send(response)
 
