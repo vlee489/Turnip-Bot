@@ -111,7 +111,7 @@ class Turnips(commands.Cog):
             return
 
     @commands.command(name='tsgraph',
-                      help="Set the Price you bought the turnips for from Daisy Mae this week.\n",
+                      help="Get your Turnip Summary Graph for the next week",
                       aliases=['tsg', 'turnipsummarygraph', 'turnipSummaryGraph'])
     async def tsgraph(self, ctx):
         try:
