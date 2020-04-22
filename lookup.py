@@ -11,7 +11,8 @@ import errors
 import aiohttp
 import json
 
-timeout = aiohttp.ClientTimeout(total=20)
+timeout = aiohttp.ClientTimeout(total=20)  # Timeout for requests in seconds
+
 
 def urlConstructor(endPoint, pram):
     """
@@ -43,8 +44,8 @@ async def fetch(session, URL):
         The response from the request
     """
     async with session.get(URL, headers={"X-API-Key": auth.nookipedia_API_key}, timeout=timeout) as response:
-        text = await response.text()
-        if response.status == 200:
+        text = await response.text()  # wait till we get something
+        if response.status == 200:  # check the status i.e. if we get a 404
             return text
         else:  # If we get anything else other that a 200(OK) we throw an error to be caught
             raise errors.InvalidAPICall(response.status)

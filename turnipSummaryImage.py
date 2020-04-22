@@ -38,14 +38,17 @@ x = 21
 x2 = 150
 x3 = 330
 # Configure constants for matplotlib
+# Tells matplotlib to use different graphic engine, as we don't have a Xorg instance for it to use
 matplotlib.use('Agg')
+# Set colours
 matplotlib.rcParams['text.color'] = colour
 matplotlib.rcParams['axes.labelcolor'] = colour
 matplotlib.rcParams['xtick.color'] = subHeadingColour
 matplotlib.rcParams['ytick.color'] = subHeadingColour
+# set font from ttf
 prop = fm.FontProperties(fname="files/RobotoRegular.ttf")
 matplotlib.rc('axes', edgecolor=headingColour)
-basewidth = 658
+basewidth = 658  # Location of where the &ages line up on the graph image
 
 
 class SummaryImage:
@@ -81,8 +84,8 @@ class SummaryImage:
         draw = ImageDraw.Draw(image)
 
         for periods in self.turnip_data:
-            # for all the data we add it to the image
-            period = periods.replace("_", " ", 1)
+            # for all the data we add in the dict it to the image
+            period = periods.replace("_", " ", 1)  # remove the dash, so it looks nicer
             draw.text((x, y), period, fill=headingColour, font=headingFont)
             y = y + 25
             draw.text((x, y), "Price(Bells)", fill=subHeadingColour, font=subHeadingFont)
@@ -111,14 +114,15 @@ class SummaryImage:
         likelyUpper = []
         xAxisLabels = []
         for periods in self.turnip_data:
-            # break up the price period
+            # break up the price
             if " - " in self.turnip_data[periods]['price']:
                 elements = (self.turnip_data[periods]['price']).split(" - ", 1)
                 priceLower.append(int(elements[0]))
                 priceUpper.append(int(elements[1]))
-            else:
+            else:  # Some done have - as they so in this case we just add the one number to both lists
                 priceLower.append(int(self.turnip_data[periods]['price']))
                 priceUpper.append(int(self.turnip_data[periods]['price']))
+            # Do the same again but for the likely price
             if " - " in self.turnip_data[periods]['likely']:
                 elements = (self.turnip_data[periods]['likely']).split(" - ", 1)
                 likelyLower.append(int(elements[0]))
@@ -126,7 +130,7 @@ class SummaryImage:
             else:
                 likelyLower.append(int(self.turnip_data[periods]['likely']))
                 likelyUpper.append(int(self.turnip_data[periods]['likely']))
-            xAxisLabels.append(periods.replace("_", " ", 1))
+            xAxisLabels.append(periods.replace("_", " ", 1))  # Add each period to a list to be used as Label for xAxis
         # Matplotlib graph functions
         pricePatch = mpatches.Patch(color="#CF70D3", label='Price Range')
         likelyPatch = mpatches.Patch(color="#32CD32", label='Likely Price Range')
@@ -161,13 +165,14 @@ class SummaryImage:
         y = 31
         draw.text((714, y), "Chance(%)", fill=headingColour, font=headingFont)
         y = y + 34
-        for periods in self.turnip_data:
-            period = periods.replace("_", " ", 1)
+        for periods in self.turnip_data:  # For each of the periods in the dict
+            period = periods.replace("_", " ", 1)  # remove the dash, so it looks nicer
             draw.text((714, y), period, fill=subHeadingColour, font=percentFont)
             y = y + 23
-            draw.text((714, y), "    {}".format(self.turnip_data[periods]['chance']), fill=colour, font=percentFont)
+            # Add the actual %age in
+            draw.text((714, y), "   {}".format(self.turnip_data[periods]['chance']), fill=colour, font=percentFont)
             y = y + 27
-        newImage.save("tempHolding/Graph{}".format(self.fileName))
+        newImage.save("tempHolding/Graph{}".format(self.fileName))  # Save image to temp location
         self.graphCreated = True
         os.remove("tempHolding/graph/{}".format(self.fileName))  # Remove the temp image from matplotlib
 
@@ -180,11 +185,12 @@ class SummaryImage:
         if not self.created:
             raise errors.FileNotCreated("File Not created")
         try:
+            # Upload files to S3
             client.upload_file("tempHolding/{}".format(self.fileName),
                            auth.aws_bucket,
                            "TurnipBot/predictions/{}".format(self.fileName),
                            ExtraArgs={'ACL': 'public-read'})
-            os.remove("tempHolding/{}".format(self.fileName))
+            os.remove("tempHolding/{}".format(self.fileName))  # remove temp file
             return "{}/TurnipBot/predictions/{}".format(auth.CDNLink, self.fileName)
         except be.ClientError as e:
             os.remove("tempHolding/Graph{}".format(self.fileName))
@@ -202,11 +208,12 @@ class SummaryImage:
         if not self.graphCreated:
             raise errors.FileNotCreated("File Not created")
         try:
+            # Upload files to S3
             client.upload_file("tempHolding/Graph{}".format(self.fileName),
                                auth.aws_bucket,
                                "TurnipBot/predictions/Graph{}".format(self.fileName),
                                ExtraArgs={'ACL': 'public-read'})
-            os.remove("tempHolding/Graph{}".format(self.fileName))
+            os.remove("tempHolding/Graph{}".format(self.fileName))  # remove temp file
             return "{}/TurnipBot/predictions/Graph{}".format(auth.CDNLink, self.fileName)
         except be.ClientError as e:
             os.remove("tempHolding/Graph{}".format(self.fileName))

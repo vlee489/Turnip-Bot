@@ -142,7 +142,6 @@ class Turnips(commands.Cog):
     async def tsgraph(self, ctx):
         try:
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
-            print(report)
             newImage = turnipSummaryImage.SummaryImage(report, ctx.message.author.id)
             newImage.createGraph()
             img_URL = newImage.uploadGraphImage()

@@ -10,6 +10,7 @@ from discord.ext import commands
 
 TOKEN = auth.discord_Token
 
+# This is the list of cogs that discord.py loads in as file names without the .py extension
 extensions = [
     'turnipsPredictor',
     'lookup',
@@ -19,11 +20,13 @@ extensions = [
 bot = commands.Bot(command_prefix='<')
 
 
+# When the bot is loaded
 @bot.event
 async def on_ready():
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
+    print("Used in {} servers".format(len(bot.guilds)))
     print('------')
     await bot.change_presence(activity=discord.Game(name="<help to get started on the Stalk Market"))
 
