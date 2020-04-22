@@ -13,12 +13,6 @@ import json
 
 timeout = aiohttp.ClientTimeout(total=20)
 
-# These are sessions for each API lookup function
-# By using one session for this it speeds up requests as the session is kept alive
-# Also a session per request is just a bad idea
-LookupSession = aiohttp.ClientSession()
-
-
 def urlConstructor(endPoint, pram):
     """
     Creates a URL to nookipedia
@@ -65,7 +59,7 @@ class Lookup(commands.Cog):
                            "<villager>: The villager you want to search for",
                       aliases=['Villager'])
     async def villagerOverview(self, ctx, villager):
-        async with LookupSession as session:
+        async with aiohttp.ClientSession() as session:
             try:
                 resp = await fetch(session, urlConstructor('villager', villager))
                 if resp is None:  # If the response is None, it means that aiohttp has timed out.
@@ -112,7 +106,7 @@ class Lookup(commands.Cog):
                            "<critter>: The critter you want to search for",
                       aliases=['bug', 'fish', 'Critter', 'Bug', 'Fish'])
     async def critterOverview(self, ctx, critter):
-        async with LookupSession as session:
+        async with aiohttp.ClientSession() as session:
             try:
                 resp = await fetch(session, urlConstructor('critter', critter))
                 if resp is None:  # If the response is None, it means that aiohttp has timed out.
@@ -160,7 +154,7 @@ class Lookup(commands.Cog):
                            "<fossil>: The fossil you want to search for",
                       aliases=['fossils', 'Fossil', 'Fossils'])
     async def fossilOverview(self, ctx, fossil):
-        async with LookupSession as session:
+        async with aiohttp.ClientSession() as session:
             try:
                 resp = await fetch(session, urlConstructor('fossil', fossil))
                 if resp is None:  # If the response is None, it means that aiohttp has timed out.
@@ -206,7 +200,7 @@ class Lookup(commands.Cog):
                       aliases=['eventstoday'])
     async def todayOverview(self, ctx):
         URL = "https://nookipedia.com/api/today/"
-        async with LookupSession as session:
+        async with aiohttp.ClientSession() as session:
             try:
                 resp = await fetch(session, URL)
                 if resp is None:  # If the response is None, it means that aiohttp has timed out.

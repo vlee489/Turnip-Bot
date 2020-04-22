@@ -5,18 +5,24 @@ a user's Turnip Summary and then uploading to AWS S3.
 from PIL import Image, ImageDraw, ImageFont
 import auth
 import boto3
+import botocore.config as bcc
 from boto3.s3.transfer import S3Transfer
+import botocore.exceptions as be
 import datetime
 import os
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.font_manager as fm
+import errors
 
 # Initiate session
+# Config to limit retry attempts
+boto3Config = bcc.Config(connect_timeout=5, read_timeout=60, retries={'max_attempts': 1})
 session = boto3.session.Session()
 client = session.client('s3', region_name=auth.aws_region_name, endpoint_url=auth.endpoint_url,
-                        aws_access_key_id=auth.aws_access_key_id, aws_secret_access_key=auth.aws_secret_access_key)
+                        aws_access_key_id=auth.aws_access_key_id, aws_secret_access_key=auth.aws_secret_access_key,
+                        config=boto3Config)
 transfer = S3Transfer(client)
 
 # Colour and Font constants
@@ -70,10 +76,12 @@ class SummaryImage:
             returns nothing
         """
         y = 55  # Y Location
+        # Load in image and create draw function on image
         image = Image.open('files/Template.png')
         draw = ImageDraw.Draw(image)
 
         for periods in self.turnip_data:
+            # for all the data we add it to the image
             period = periods.replace("_", " ", 1)
             draw.text((x, y), period, fill=headingColour, font=headingFont)
             y = y + 25
@@ -103,6 +111,7 @@ class SummaryImage:
         likelyUpper = []
         xAxisLabels = []
         for periods in self.turnip_data:
+            # break up the price period
             if " - " in self.turnip_data[periods]['price']:
                 elements = (self.turnip_data[periods]['price']).split(" - ", 1)
                 priceLower.append(int(elements[0]))
@@ -169,13 +178,20 @@ class SummaryImage:
             Link to the uploaded image
         """
         if not self.created:
-            raise AttributeError("File Not created")
-        client.upload_file("tempHolding/{}".format(self.fileName),
+            raise errors.FileNotCreated("File Not created")
+        try:
+            client.upload_file("tempHolding/{}".format(self.fileName),
                            auth.aws_bucket,
                            "TurnipBot/predictions/{}".format(self.fileName),
                            ExtraArgs={'ACL': 'public-read'})
-        os.remove("tempHolding/{}".format(self.fileName))
-        return "{}/TurnipBot/predictions/{}".format(auth.CDNLink, self.fileName)
+            os.remove("tempHolding/{}".format(self.fileName))
+            return "{}/TurnipBot/predictions/{}".format(auth.CDNLink, self.fileName)
+        except be.ClientError as e:
+            os.remove("tempHolding/Graph{}".format(self.fileName))
+            raise errors.AWSError(e)
+        except Exception as e:
+            os.remove("tempHolding/Graph{}".format(self.fileName))
+            raise errors.AWSError(e)
 
     def uploadGraphImage(self) -> str:
         """
@@ -184,10 +200,17 @@ class SummaryImage:
             Link to the uploaded image
         """
         if not self.graphCreated:
-            raise AttributeError("File Not created")
-        client.upload_file("tempHolding/Graph{}".format(self.fileName),
-                           auth.aws_bucket,
-                           "TurnipBot/predictions/Graph{}".format(self.fileName),
-                           ExtraArgs={'ACL': 'public-read'})
-        os.remove("tempHolding/Graph{}".format(self.fileName))
-        return "{}/TurnipBot/predictions/Graph{}".format(auth.CDNLink, self.fileName)
+            raise errors.FileNotCreated("File Not created")
+        try:
+            client.upload_file("tempHolding/Graph{}".format(self.fileName),
+                               auth.aws_bucket,
+                               "TurnipBot/predictions/Graph{}".format(self.fileName),
+                               ExtraArgs={'ACL': 'public-read'})
+            os.remove("tempHolding/Graph{}".format(self.fileName))
+            return "{}/TurnipBot/predictions/Graph{}".format(auth.CDNLink, self.fileName)
+        except be.ClientError as e:
+            os.remove("tempHolding/Graph{}".format(self.fileName))
+            raise errors.AWSError(e)
+        except Exception as e:
+            os.remove("tempHolding/Graph{}".format(self.fileName))
+            raise errors.AWSError(e)

@@ -6,6 +6,7 @@ import turnipCalculator
 import datetime
 import turnipSummaryImage
 import discord
+import errors
 
 
 class Turnips(commands.Cog):
@@ -28,15 +29,21 @@ class Turnips(commands.Cog):
                                                                              (datetime.datetime.now()).strftime(
                                                                                  '%d/%m/%Y'),
                                                                              time)
-            except AttributeError:
+            except errors.InvalidDateTime:
                 response = "Time given to internal system was Invalid\n" \
                            "Has to be either `AM` or `PM`"
-            except ValueError:
+            except errors.InvalidPeriod:
                 response = "You can't give me a time for Sunday!"
+            except errors.AWSError as error:
+                response = "Unable to store data!\nError been reported to operator"
+                print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                               datetime.datetime.now(),
+                                                                               error))
         else:
             response = "Time isn't correct, has to be either `AM` or `PM`"
 
         await ctx.send(response)
+
 
     @commands.command(name='addTurnipPrice', help="Add Turnip price data for a specific date & time. \n"
                                                   "<date> : The date to add the price for in DD/MM/YYYY\n"
@@ -46,12 +53,24 @@ class Turnips(commands.Cog):
     async def addSpecificPrice(self, ctx, date, time, bells):
         try:
             response = turnipCalculator.addSpecifiedData(ctx.message.author.id, date, time, bells)
-        except Exception as error:
-            await ctx.send(error)
+        except errors.InvalidDateTime:
+            response = "Time given was Invalid\n" \
+                       "Has to be either `AM` or `PM`"
+        except errors.InvalidPeriod:
+            response = "You can't give me a time for Sunday!"
+        except errors.AWSError as error:
+            response = "Unable to store data!\nError been reported to operator"
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
                                                                            error))
-            return
+        except errors.InvalidDateFormat:
+            response = "Invalid date format!\n" \
+                       "Should be DD/MM/YYYY"
+        except Exception as error:
+            response = "Internal error >.<!\nError been reported to operator"
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           error))
         await ctx.send(response)
 
     @commands.command(name='ts', help="Get your Turnip Summary for the next week",
@@ -70,13 +89,19 @@ class Turnips(commands.Cog):
             embedded.set_image(url=img_URL)
             embedded.set_footer(text="Turnip Bot @ {}".format(datetime.datetime.now().strftime('%H:%M')))
             await ctx.send(embed=embedded)
-        except AttributeError as e:
+        except errors.FileNotCreated as e:
             await ctx.send("Failed to create image of summary >.<\n "
                            "Issue has been reported to operator.\n")
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
                                                                            e))
             return
+        except errors.AWSError as e:
+            await ctx.send("Failed to upload image >.<\n "
+                           "Issue has been reported to operator.\n")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
         except Exception as e:
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
@@ -85,6 +110,7 @@ class Turnips(commands.Cog):
                                                                            datetime.datetime.now(),
                                                                            e))
             return
+
 
     @commands.command(name='tst', help="Get your Turnip Summary for the next week as text\n"
                                        "This is built for people using screen readers, use <ts if you can",
@@ -116,6 +142,7 @@ class Turnips(commands.Cog):
     async def tsgraph(self, ctx):
         try:
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
+            print(report)
             newImage = turnipSummaryImage.SummaryImage(report, ctx.message.author.id)
             newImage.createGraph()
             img_URL = newImage.uploadGraphImage()
@@ -127,8 +154,14 @@ class Turnips(commands.Cog):
             embedded.set_image(url=img_URL)
             embedded.set_footer(text="Turnip Bot @ {}".format(datetime.datetime.now().strftime('%H:%M')))
             await ctx.send(embed=embedded)
-        except AttributeError as e:
+        except errors.FileNotCreated as e:
             await ctx.send("Failed to create image of summary >.<\n "
+                           "Issue has been reported to operator.\n")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
+        except errors.AWSError as e:
+            await ctx.send("Failed to upload image >.<\n "
                            "Issue has been reported to operator.\n")
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
@@ -136,7 +169,7 @@ class Turnips(commands.Cog):
         except Exception as e:
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
-                           "(ts.catch.rest)")
+                           "(tsg.catch.rest)")
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
                                                                            e))
@@ -149,8 +182,16 @@ class Turnips(commands.Cog):
     async def setBuyPrice(self, ctx, bells):
         try:
             response = turnipCalculator.addPurchasePrice(ctx.message.author.id, bells)
+        except ValueError:
+            await ctx.send("Bells must be given as a number! E.g 1-9")
+            return
+        except errors.BellsOutOfRange as e:
+            await ctx.send(e)
+            return
         except Exception as error:
-            await ctx.send(error)
+            await ctx.send("Internal Error, sorry >.<\n "
+                           "Issue has been reported to operator.\n"
+                           "(sbp.catch.rest)")
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
                                                                            error))
