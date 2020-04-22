@@ -5,5 +5,4 @@ pyjokes
 pillow
 matplotlib
 numpy
-aiohttp
-aiohttp-cache
+requests
