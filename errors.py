@@ -56,3 +56,10 @@ class BellsOutOfRange(Exception):
     Raised when the value in bells is out of range
     """
     pass
+
+class NoData(Exception):
+    """
+    Raised when there's no data to work with
+    """
+    pass
+
