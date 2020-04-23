@@ -239,6 +239,9 @@ def createTurnipModel(discordID, date):
         raise AttributeError("No data available to make model")
     elif len(response['Items']) > 1:
         raise LookupError("System Error, more than one response returned")
+        # A lookup error should in theory never happen because discordID and weekBegining as tied together
+        # as a dual pair key, so each set of data requires both attributes to exist and one the combo can only
+        # exist in one entry together
 
     # Create blank object to hold data
     turnipInstance = TurnipClass()
@@ -320,15 +323,15 @@ def createCurrentSummary(discordID):
     :return: str
         The summary report
     """
-    date = datetime.datetime.now()
+    date = datetime.datetime.now() + datetime.timedelta(days=1)
 
     try:
         model = createTurnipModel(discordID, date)
         return model.summary()
     except AttributeError:
-        raise Exception("No data available to make model")
+        raise errors.NoData("No data available to make model")
     except LookupError as e:
-        raise Exception("Internal Error, sorry >.< \n Issue has been reported to operator. \n (Too Many Responses)")
+        raise Exception("Too Many Responses from AWS DynamoDB")
 
 
 def addSpecifiedData(discordID, date, time, bells):

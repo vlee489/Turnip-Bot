@@ -44,7 +44,6 @@ class Turnips(commands.Cog):
 
         await ctx.send(response)
 
-
     @commands.command(name='addTurnipPrice', help="Add Turnip price data for a specific date & time. \n"
                                                   "<date> : The date to add the price for in DD/MM/YYYY\n"
                                                   "<Time> : Either PM or AM.\n"
@@ -102,6 +101,10 @@ class Turnips(commands.Cog):
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
                                                                            e))
+        except errors.NoData:
+            await ctx.send("No Data to create model with\n "
+                           "So your prices will be somewhere between 0 to 700.\n"
+                           "Use `<ap` and/or `<setBuyPrice` to get started!")
         except Exception as e:
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
@@ -127,6 +130,10 @@ class Turnips(commands.Cog):
                                                                       report[periods]['chance'])
             reply = reply + '```'
             await ctx.send(reply)
+        except errors.NoData:
+            await ctx.send("No Data to create model with\n "
+                           "So your prices will be somewhere between 0 to 700.\n"
+                           "Use `<ap` and/or `<setBuyPrice` to get started!")
         except Exception as e:
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
@@ -165,6 +172,10 @@ class Turnips(commands.Cog):
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
                                                                            e))
+        except errors.NoData:
+            await ctx.send("No Data to create model with\n "
+                           "So your prices will be somewhere between 0 to 700.\n"
+                           "Use `<ap` and/or `<setBuyPrice` to get started!")
         except Exception as e:
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
