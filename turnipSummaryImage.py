@@ -149,6 +149,9 @@ class SummaryImage:
            ncol=2, mode="expand", borderaxespad=0., framealpha=0, prop=prop)
         # Save image to temp location
         plt.savefig("tempHolding/graph/{}".format(self.fileName), transparent=True, bbox_inches='tight')
+        # If we don't close the plt we end up with a memory hogging issue, where each request will add 3-5mb of ram used
+        # and won't release it after the function has ended.
+        plt.close()
 
         # Uses Pillow to form final image with boarder
         templateImage = Image.open('files/graphTemplate.png')
