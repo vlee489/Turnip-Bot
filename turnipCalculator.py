@@ -89,7 +89,7 @@ def addData(discordID, date, time, bells):
     return True
 
 
-def numericalTimeSlot(day):
+def numericalTimeSlot(day) -> int:
     """
     Returns the numerical day of thr timeslot given
     :param day: str
@@ -113,6 +113,32 @@ def numericalTimeSlot(day):
         "Saturday_PM": 13
     }
     return switch.get(day, -1)
+
+
+def timeSlotToStr(timeSlot) -> str:
+    """
+    Returns the time slot str from a numerical time slot
+    :param timeSlot: int
+        Time slot between 1-13
+    :return: str
+        The string for the time slot it is
+    """
+    switch = {
+        1: "Sunday_AM",
+        2: "Monday_AM",
+        3: "Monday_PM",
+        4: "Tuesday_AM",
+        5: "Tuesday_PM",
+        6: "Wednesday_AM",
+        7: "Wednesday_PM",
+        8: "Thursday_AM",
+        9: "Thursday_PM",
+        10: "Friday_AM",
+        11: "Friday_PM",
+        12: "Saturday_AM",
+        13: "Saturday_PM"
+    }
+    return switch.get(timeSlot, "Invalid")
 
 
 class TurnipClass:
@@ -308,6 +334,75 @@ def addBuyPrice(discordID, date, bells):
         raise errors.AWSError("Unable to update table")
 
     return True
+
+
+def clearErrors(discordID) -> str:
+    """
+    Attempts to remove data causing errors from Database
+    :param discordID: str
+        The user's Discord ID
+    :return: str
+        The list of day/times removes
+    """
+    # Work out the beginning of the week
+    beginningOfWeek = datetime.datetime.now() - datetime.timedelta(days=datetime.datetime.now().weekday())
+    # We check if we actually need to fix errors by making sure data already present can't produce a report
+    try:
+        if bool((createTurnipModel(discordID, datetime.datetime.now()).summary())) is True:
+            raise errors.DataCorrect("Nothing to correct")
+    except AttributeError:
+        raise errors.NoData("No data available to make model")
+    except LookupError as e:
+        raise errors.InternalError(e)
+    # We query the DB for the current copy of the data
+    response = table.query(
+        KeyConditionExpression=Key('discordID').eq(str(discordID)) &
+                               Key('weekBegining').eq(str(beginningOfWeek.strftime('%d/%m/%Y')))
+    )
+    if len(response['Items']) == 0:
+        raise errors.NoData("No data available to make model")
+    elif len(response['Items']) > 1:
+        raise errors.InternalError("Too Many Responses")
+    # we take the response and for each day we turn it into it's numerical id
+    dates = []
+    removedDates = []
+    i = response['Items'][0]
+    for day in i['timeline']:  # for each day in the response
+        timeSlot = numericalTimeSlot(str(day))
+        if timeSlot != 1:
+            dates.append(timeSlot)
+    dates.sort()  # Sort numerical dates out in order
+    for x in range(len(dates)):  # for each date in the list
+        lastDate = dates.pop()  # pop date
+        removedDates.append(timeSlotToStr(lastDate).replace("_", " "))  # add it to the list of removed dates
+        try:
+            # We remove that date we popped from the the DB
+            table.update_item(
+                Key={
+                    'discordID': str(discordID),
+                    'weekBegining': str(beginningOfWeek.strftime('%d/%m/%Y'))
+                },
+                UpdateExpression="Remove timeline.{}".format(timeSlotToStr(lastDate)),
+                ReturnValues="UPDATED_NEW"
+
+            )
+        except Exception as e:
+            raise errors.AWSError(e)
+        # We then check if we can then create a model.
+        if bool((createTurnipModel(discordID, datetime.datetime.now()).summary())) is True:
+            # if we can create a model, then we return the list of dates that got removed
+            strReply = ""
+            for date in removedDates:
+                strReply = strReply + "{}, ".format(date)
+            return strReply
+        # if not the loop continues to remove dates in order till we can create a model
+    # if we finish the loop, then we return all the dates removed.
+    strReply = ""
+    for date in removedDates:
+        strReply = strReply + "{}, ".format(date)
+    return strReply
+    # We don't remove the Sunday_AM reference because we error check that value
+    # before it's entered anyway so will always be within range being the first value
 
 
 """

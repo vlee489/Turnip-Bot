@@ -79,7 +79,8 @@ class Turnips(commands.Cog):
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
             if bool(report) is False:
                 await ctx.send("Failed to create a report with data provided\n"
-                               "You've given some invalid bell amount somewhere\n")
+                               "You've given some invalid bell amount somewhere\n"
+                               "You can run `<removeInvalidData` to try and fix this issue")
                 print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
                                                                             datetime.datetime.now(), ))
                 return
@@ -128,7 +129,8 @@ class Turnips(commands.Cog):
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
             if bool(report) is False:
                 await ctx.send("Failed to create a report with data provided\n"
-                               "You've given some invalid bell amount somewhere\n")
+                               "You've given some invalid bell amount somewhere\n"
+                               "You can run `<removeInvalidData` to try and fix this issue")
                 print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
                                                                             datetime.datetime.now(),))
                 return
@@ -162,7 +164,8 @@ class Turnips(commands.Cog):
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
             if bool(report) is False:
                 await ctx.send("Failed to create a report with data provided\n"
-                               "You've given some invalid bell amount somewhere\n")
+                               "You've given some invalid bell amount somewhere\n"
+                               "You can run `<removeInvalidData` to try and fix this issue")
                 print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
                                                                             datetime.datetime.now(), ))
                 return
@@ -224,6 +227,41 @@ class Turnips(commands.Cog):
                                                                            error))
             return
         await ctx.send(response)
+
+    @commands.command(name='removeInvalidData',
+                      help="Helps find and remove invalid data from to make your turnip summary generate.\n",
+                      aliases=["correctErrors", "removeinvaliddata", 'rid'])
+    async def correctErrors(self, ctx):
+        try:
+            removedDate = turnipCalculator.clearErrors(ctx.message.author.id)
+            await ctx.send("I've removed all the data that was causing an error now!\n"
+                           "You should be able to run summary commands again now.\n"
+                           "The following days have been removed.\n"
+                           "{}".format(removedDate))
+        except errors.AWSError as e:
+            await ctx.send("Failed to access dataStore >.<\n "
+                           "Issue has been reported to operator.\n")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           e))
+        except errors.DataCorrect:
+            await ctx.send("Data is already correct and can create a summary\n")
+        except errors.NoData:
+            await ctx.send("No Data to create model with\n")
+        except errors.InternalError as error:
+            await ctx.send("Internal Error, sorry >.<\n "
+                           "Issue has been reported to operator.\n"
+                           "(rid.tooManyResponses)")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           error))
+        except Exception as error:
+            await ctx.send("Internal Error, sorry >.<\n "
+                           "Issue has been reported to operator.\n"
+                           "(rid.catch.rest)")
+            print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                           datetime.datetime.now(),
+                                                                           error))
 
 
 def setup(bot):

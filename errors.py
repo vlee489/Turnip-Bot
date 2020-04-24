@@ -57,9 +57,24 @@ class BellsOutOfRange(Exception):
     """
     pass
 
+
 class NoData(Exception):
     """
     Raised when there's no data to work with
+    """
+    pass
+
+
+class DataCorrect(Exception):
+    """
+    Raised when data in DB is already valid
+    """
+    pass
+
+
+class InternalError(Exception):
+    """
+    Report an internal error has happened
     """
     pass
 
