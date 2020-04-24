@@ -54,12 +54,12 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-        embedded.add_field(name="Version:", value="Alpha 6.0 RC2", inline=False)
-        embedded.add_field(name="Last Server Update:", value="22/04/2020", inline=False)
+        embedded.add_field(name="Version:", value="Alpha 6.0 RC3", inline=False)
         embedded.add_field(name="Used in number of servers:", value="{} servers".format(len(self.bot.guilds)),
                            inline=False)
         embedded.add_field(name="Contributors:", value="1", inline=False)
         embedded.add_field(name="Kofi Donations", value="https://ko-fi.com/vlee489", inline=False)
+        embedded.add_field(name="Issues report", value="https://github.com/vlee489/Turnip-Bot/issues", inline=False)
         embedded.set_footer(text="Turnip Bot by vlee489")
         await ctx.send(embed=embedded)
 

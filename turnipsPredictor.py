@@ -77,6 +77,12 @@ class Turnips(commands.Cog):
     async def currentTurnipSummary(self, ctx):
         try:
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
+            if bool(report) is False:
+                await ctx.send("Failed to create a report with data provided\n"
+                               "You've given some invalid bell amount somewhere\n")
+                print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
+                                                                            datetime.datetime.now(), ))
+                return
             newImage = turnipSummaryImage.SummaryImage(report, ctx.message.author.id)
             newImage.createImage()
             img_URL = newImage.uploadImage()
@@ -114,13 +120,18 @@ class Turnips(commands.Cog):
                                                                            e))
             return
 
-
     @commands.command(name='tst', help="Get your Turnip Summary for the next week as text\n"
                                        "This is built for people using screen readers, use <ts if you can",
                       aliases=['TurnipSummaryText', 'turnipsummarytext'])
     async def currentTurnipSummaryText(self, ctx):
         try:
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
+            if bool(report) is False:
+                await ctx.send("Failed to create a report with data provided\n"
+                               "You've given some invalid bell amount somewhere\n")
+                print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
+                                                                            datetime.datetime.now(),))
+                return
             reply = "Turnip Summary\n```"
             reply = reply + "    {:15} {:13} {:13} {:6}\n".format('Time', 'Price(Bells)', 'Likely(bells)', 'Odds(%)')
             for periods in report:
@@ -149,6 +160,12 @@ class Turnips(commands.Cog):
     async def tsgraph(self, ctx):
         try:
             report = turnipCalculator.createCurrentSummary(ctx.message.author.id)
+            if bool(report) is False:
+                await ctx.send("Failed to create a report with data provided\n"
+                               "You've given some invalid bell amount somewhere\n")
+                print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
+                                                                            datetime.datetime.now(), ))
+                return
             newImage = turnipSummaryImage.SummaryImage(report, ctx.message.author.id)
             newImage.createGraph()
             img_URL = newImage.uploadGraphImage()
