@@ -58,7 +58,7 @@ class Lookup(commands.Cog):
     @commands.command(name='villager',
                       help="Get an overview of a villager and their trites.\n"
                            "<villager>: The villager you want to search for",
-                      aliases=['Villager'])
+                      aliases=['Villager', 'Villagers', 'villagers'])
     async def villagerOverview(self, ctx, villager):
         async with aiohttp.ClientSession() as session:
             try:
@@ -105,7 +105,7 @@ class Lookup(commands.Cog):
     @commands.command(name='critter',
                       help="Get an overview of a critter and their trites.\n"
                            "<critter>: The critter you want to search for",
-                      aliases=['bug', 'fish', 'Critter', 'Bug', 'Fish'])
+                      aliases=['bug', 'fish', 'Critter', 'Bug', 'Fish', 'critters', 'Critters'])
     async def critterOverview(self, ctx, critter):
         async with aiohttp.ClientSession() as session:
             try:
