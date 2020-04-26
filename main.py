@@ -23,6 +23,7 @@ bot = commands.Bot(command_prefix='<')
 
 helloMessageFile = open("join.txt")
 helloMessage = helloMessageFile.read()
+helloMessageFile.close()
 
 
 # When the bot is loaded
