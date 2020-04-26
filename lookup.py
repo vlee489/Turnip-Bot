@@ -79,13 +79,20 @@ class Lookup(commands.Cog):
                         embedded.set_author(name="Turnip Bot",
                                             url="https://github.com/vlee489/Turnip-Bot/",
                                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-                        embedded.add_field(name="Species:", value=resp['species'], inline=True)
-                        embedded.add_field(name="Personality:", value=resp['personality'], inline=True)
-                        embedded.add_field(name="Sign:", value=resp['sign'], inline=True)
-                        embedded.add_field(name="Phrase:", value=resp['phrase'], inline=True)
-                        embedded.add_field(name="Birthday:", value=resp['birthday'], inline=True)
-                        embedded.add_field(name="Gender:", value=resp['gender'], inline=True)
-                        embedded.add_field(name="Quote:", value=resp['quote'], inline=False)
+                        if resp['species']:
+                            embedded.add_field(name="Species:", value=resp['species'], inline=True)
+                        if resp['personality']:
+                            embedded.add_field(name="Personality:", value=resp['personality'], inline=True)
+                        if resp['sign']:
+                            embedded.add_field(name="Sign:", value=resp['sign'], inline=True)
+                        if resp['phrase']:
+                            embedded.add_field(name="Phrase:", value=resp['phrase'], inline=True)
+                        if resp['birthday']:
+                            embedded.add_field(name="Birthday:", value=resp['birthday'], inline=True)
+                        if resp['gender']:
+                            embedded.add_field(name="Gender:", value=resp['gender'], inline=True)
+                        if resp['quote']:
+                            embedded.add_field(name="Quote:", value=resp['quote'], inline=False)
                         embedded.set_footer(text="Info from nookipedia.com")
                         await ctx.send(embed=embedded)
                         return
@@ -128,13 +135,20 @@ class Lookup(commands.Cog):
                         embedded.set_author(name="Turnip Bot",
                                             url="https://github.com/vlee489/Turnip-Bot/",
                                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-                        embedded.add_field(name="Time of Year:", value=jsonData['time-year'], inline=False)
-                        embedded.add_field(name="Time of Day:", value=jsonData['time-day'], inline=False)
-                        embedded.add_field(name="Size:", value=jsonData['size'], inline=True)
-                        embedded.add_field(name="Rarity:", value=jsonData['rarity'], inline=True)
-                        embedded.add_field(name="Family:", value=jsonData['family'], inline=True)
-                        embedded.add_field(name="Sale Price:", value=jsonData['price'], inline=False)
-                        embedded.add_field(name="Catch Phrase:", value=jsonData['caught'], inline=False)
+                        if jsonData['time-year']:
+                            embedded.add_field(name="Time of Year:", value=jsonData['time-year'], inline=False)
+                        if jsonData['time-day']:
+                            embedded.add_field(name="Time of Day:", value=jsonData['time-day'], inline=False)
+                        if jsonData['size']:
+                            embedded.add_field(name="Size:", value=jsonData['size'], inline=True)
+                        if jsonData['rarity']:
+                            embedded.add_field(name="Rarity:", value=jsonData['rarity'], inline=True)
+                        if jsonData['family']:
+                            embedded.add_field(name="Family:", value=jsonData['family'], inline=True)
+                        if jsonData['price']:
+                            embedded.add_field(name="Sale Price:", value=jsonData['price'], inline=False)
+                        if jsonData['caught']:
+                            embedded.add_field(name="Catch Phrase:", value=jsonData['caught'], inline=False)
                         embedded.set_footer(text="Info from nookipedia.com")
                         await ctx.send(embed=embedded)
                         return
@@ -177,11 +191,16 @@ class Lookup(commands.Cog):
                         embedded.set_author(name="Turnip Bot",
                                             url="https://github.com/vlee489/Turnip-Bot/",
                                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-                        embedded.add_field(name="Sections:", value=jsonData['sections'], inline=False)
-                        embedded.add_field(name="price:", value=jsonData['price'], inline=False)
-                        embedded.add_field(name="Length:", value=jsonData['length'], inline=True)
-                        embedded.add_field(name="Period:", value=jsonData['period'], inline=True)
-                        embedded.add_field(name="Scientific Name:", value=jsonData['scientific-name'], inline=True)
+                        if jsonData['sections']:
+                            embedded.add_field(name="Sections:", value=jsonData['sections'], inline=False)
+                        if jsonData['price']:
+                            embedded.add_field(name="price:", value=jsonData['price'], inline=False)
+                        if jsonData['length']:
+                            embedded.add_field(name="Length:", value=jsonData['length'], inline=True)
+                        if jsonData['period']:
+                            embedded.add_field(name="Period:", value=jsonData['period'], inline=True)
+                        if jsonData['scientific-name']:
+                            embedded.add_field(name="Scientific Name:", value=jsonData['scientific-name'], inline=True)
                         embedded.set_footer(text="Info from nookipedia.com")
                         await ctx.send(embed=embedded)
                         return
