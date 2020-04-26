@@ -1,0 +1,22 @@
+Hello there :wave:
+
+I'm Turnip Bot, I'm the general-purpose Animal Crossing bot.
+
+To get started with me use `<help` to find out what commands I have, but here's a rundown of my categories.
+
+- **Turnips** This category of commands are used to add data to create turnip predictions.
+   `<setBuyPrice`: Used to set the price you bought the turnips on Sunday on **your** island
+   `<ap`: Used for setting the price you can sell turnips for day to day on your island
+   `<tsg`: Gets a graphed Turnip Summary/Predictions of your prices.
+   `<ts`: Gets a text Turnip Summary/Predictions of your prices.
+- **Lookup** (*In Beta*) This category of commands can be used to lookup thing from Animal Crossing
+   `<villager`: Look up a villager
+   `<critter`: Lookup bugs and fish
+   `<fossils`: Look up fossils
+   `<eventsToday`: Get a list of events on today in AC
+
+To see details on the bot and what's planned as well as to Donate
+to running the bot head over to https://github.com/vlee489/Turnip-Bot/
+
+Have a good day!
+Turnip bot & Vincent(*@vlee888*)
