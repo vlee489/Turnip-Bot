@@ -60,182 +60,187 @@ class Lookup(commands.Cog):
                            "<villager>: The villager you want to search for",
                       aliases=['Villager', 'Villagers', 'villagers'])
     async def villagerOverview(self, ctx, villager):
-        async with aiohttp.ClientSession() as session:
-            try:
-                resp = await fetch(session, urlConstructor('villager', villager))
-                if resp is None:  # If the response is None, it means that aiohttp has timed out.
-                    await ctx.send("Unable to connect to Nookipedia")
+        with ctx.typing():
+            async with aiohttp.ClientSession() as session:
+                try:
+                    resp = await fetch(session, urlConstructor('villager', villager))
+                    if resp is None:  # If the response is None, it means that aiohttp has timed out.
+                        await ctx.send("Unable to connect to Nookipedia")
+                        print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                                       datetime.datetime.now(),
+                                                                                       "Timeout on API Call"))
+                    else:
+                        resp = json.loads(resp)  # Load in reponse as JSON
+                        # Create the discord embed and send it.
+                        embedded = discord.Embed(title=resp['name'], description=resp['message'], url=resp['link'],
+                                                 color=0xCF70D3)
+                        if resp['image']:  # Checks if there's an image
+                            embedded.set_thumbnail(url=resp['image'])
+                        embedded.set_author(name="Turnip Bot",
+                                            url="https://github.com/vlee489/Turnip-Bot/",
+                                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                        embedded.add_field(name="Species:", value=resp['species'], inline=True)
+                        embedded.add_field(name="Personality:", value=resp['personality'], inline=True)
+                        embedded.add_field(name="Sign:", value=resp['sign'], inline=True)
+                        embedded.add_field(name="Phrase:", value=resp['phrase'], inline=True)
+                        embedded.add_field(name="Birthday:", value=resp['birthday'], inline=True)
+                        embedded.add_field(name="Gender:", value=resp['gender'], inline=True)
+                        embedded.add_field(name="Quote:", value=resp['quote'], inline=False)
+                        embedded.set_footer(text="Info from nookipedia.com")
+                        await ctx.send(embed=embedded)
+                        return
+                except errors.InvalidAPICall:
+                    await ctx.send("Couldn't find villager\n"
+                                   "If the villager's name is in 2 part, use \" to enclose the name.\n"
+                                   "E.G. \"Agent S\"")
+                    return
+                except errors.EndPointValidation as e:
+                    await ctx.send("Internal Error, sorry >.<\n "
+                                   "Issue has been reported to operator.\n"
+                                   "(EndPointInvalid)")
                     print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                                    datetime.datetime.now(),
-                                                                                   "Timeout on API Call"))
-                else:
-                    resp = json.loads(resp)  # Load in reponse as JSON
-                    # Create the discord embed and send it.
-                    embedded = discord.Embed(title=resp['name'], description=resp['message'], url=resp['link'],
-                                             color=0xCF70D3)
-                    if resp['image']:  # Checks if there's an image
-                        embedded.set_thumbnail(url=resp['image'])
-                    embedded.set_author(name="Turnip Bot",
-                                        url="https://github.com/vlee489/Turnip-Bot/",
-                                        icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-                    embedded.add_field(name="Species:", value=resp['species'], inline=True)
-                    embedded.add_field(name="Personality:", value=resp['personality'], inline=True)
-                    embedded.add_field(name="Sign:", value=resp['sign'], inline=True)
-                    embedded.add_field(name="Phrase:", value=resp['phrase'], inline=True)
-                    embedded.add_field(name="Birthday:", value=resp['birthday'], inline=True)
-                    embedded.add_field(name="Gender:", value=resp['gender'], inline=True)
-                    embedded.add_field(name="Quote:", value=resp['quote'], inline=False)
-                    embedded.set_footer(text="Info from nookipedia.com")
-                    await ctx.send(embed=embedded)
+                                                                                   e))
                     return
-            except errors.InvalidAPICall:
-                await ctx.send("Couldn't find villager\n"
-                               "If the villager's name is in 2 part, use \" to enclose the name.\n"
-                               "E.G. \"Agent S\"")
-                return
-            except errors.EndPointValidation as e:
-                await ctx.send("Internal Error, sorry >.<\n "
-                               "Issue has been reported to operator.\n"
-                               "(EndPointInvalid)")
-                print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
-                                                                               datetime.datetime.now(),
-                                                                               e))
-                return
 
     @commands.command(name='critter',
                       help="Get an overview of a critter and their trites.\n"
                            "<critter>: The critter you want to search for",
                       aliases=['bug', 'fish', 'Critter', 'Bug', 'Fish', 'critters', 'Critters'])
     async def critterOverview(self, ctx, critter):
-        async with aiohttp.ClientSession() as session:
-            try:
-                resp = await fetch(session, urlConstructor('critter', critter))
-                if resp is None:  # If the response is None, it means that aiohttp has timed out.
-                    await ctx.send("Unable to connect to Nookipedia")
+        with ctx.typing():
+            async with aiohttp.ClientSession() as session:
+                try:
+                    resp = await fetch(session, urlConstructor('critter', critter))
+                    if resp is None:  # If the response is None, it means that aiohttp has timed out.
+                        await ctx.send("Unable to connect to Nookipedia")
+                        print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                                       datetime.datetime.now(),
+                                                                                       "Timeout on API Call"))
+                    else:
+                        jsonData = json.loads(resp)  # Load in reponse as JSON
+                        # Create the discord embed and send it.
+                        embedded = discord.Embed(title=jsonData['name'], description=jsonData['message'],
+                                                 url=jsonData['link'],
+                                                 color=0xCF70D3)
+                        if jsonData['image']:  # Checks if there's an image
+                            embedded.set_thumbnail(url=jsonData['image'])
+                        embedded.set_author(name="Turnip Bot",
+                                            url="https://github.com/vlee489/Turnip-Bot/",
+                                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                        embedded.add_field(name="Time of Year:", value=jsonData['time-year'], inline=False)
+                        embedded.add_field(name="Time of Day:", value=jsonData['time-day'], inline=False)
+                        embedded.add_field(name="Size:", value=jsonData['size'], inline=True)
+                        embedded.add_field(name="Rarity:", value=jsonData['rarity'], inline=True)
+                        embedded.add_field(name="Family:", value=jsonData['family'], inline=True)
+                        embedded.add_field(name="Sale Price:", value=jsonData['price'], inline=False)
+                        embedded.add_field(name="Catch Phrase:", value=jsonData['caught'], inline=False)
+                        embedded.set_footer(text="Info from nookipedia.com")
+                        await ctx.send(embed=embedded)
+                        return
+                except errors.InvalidAPICall:
+                    await ctx.send("Couldn't find villager\n"
+                                   "If the villager's name is in 2 part, use \" to enclose the name.\n"
+                                   "E.G. \"Agent S\"")
+                    return
+                except errors.EndPointValidation as e:
+                    await ctx.send("Internal Error, sorry >.<\n "
+                                   "Issue has been reported to operator.\n"
+                                   "(EndPointInvalid)")
                     print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                                    datetime.datetime.now(),
-                                                                                   "Timeout on API Call"))
-                else:
-                    jsonData = json.loads(resp)  # Load in reponse as JSON
-                    # Create the discord embed and send it.
-                    embedded = discord.Embed(title=jsonData['name'], description=jsonData['message'],
-                                             url=jsonData['link'],
-                                             color=0xCF70D3)
-                    if jsonData['image']:  # Checks if there's an image
-                        embedded.set_thumbnail(url=jsonData['image'])
-                    embedded.set_author(name="Turnip Bot",
-                                        url="https://github.com/vlee489/Turnip-Bot/",
-                                        icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-                    embedded.add_field(name="Time of Year:", value=jsonData['time-year'], inline=False)
-                    embedded.add_field(name="Time of Day:", value=jsonData['time-day'], inline=False)
-                    embedded.add_field(name="Size:", value=jsonData['size'], inline=True)
-                    embedded.add_field(name="Rarity:", value=jsonData['rarity'], inline=True)
-                    embedded.add_field(name="Family:", value=jsonData['family'], inline=True)
-                    embedded.add_field(name="Sale Price:", value=jsonData['price'], inline=False)
-                    embedded.add_field(name="Catch Phrase:", value=jsonData['caught'], inline=False)
-                    embedded.set_footer(text="Info from nookipedia.com")
-                    await ctx.send(embed=embedded)
+                                                                                   e))
                     return
-            except errors.InvalidAPICall:
-                await ctx.send("Couldn't find villager\n"
-                               "If the villager's name is in 2 part, use \" to enclose the name.\n"
-                               "E.G. \"Agent S\"")
-                return
-            except errors.EndPointValidation as e:
-                await ctx.send("Internal Error, sorry >.<\n "
-                               "Issue has been reported to operator.\n"
-                               "(EndPointInvalid)")
-                print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
-                                                                               datetime.datetime.now(),
-                                                                               e))
-                return
 
     @commands.command(name='fossil',
                       help="Get an overview of a fossil and their trites.\n"
                            "<fossil>: The fossil you want to search for",
                       aliases=['fossils', 'Fossil', 'Fossils'])
     async def fossilOverview(self, ctx, fossil):
-        async with aiohttp.ClientSession() as session:
-            try:
-                resp = await fetch(session, urlConstructor('fossil', fossil))
-                if resp is None:  # If the response is None, it means that aiohttp has timed out.
-                    await ctx.send("Unable to connect to Nookipedia")
+        with ctx.typing():
+            async with aiohttp.ClientSession() as session:
+                try:
+                    resp = await fetch(session, urlConstructor('fossil', fossil))
+                    if resp is None:  # If the response is None, it means that aiohttp has timed out.
+                        await ctx.send("Unable to connect to Nookipedia")
+                        print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                                       datetime.datetime.now(),
+                                                                                       "Timeout on API Call"))
+                    else:
+                        jsonData = json.loads(resp)  # Load in response as JSON
+                        # Create the discord embed and send it.
+                        embedded = discord.Embed(title=jsonData['name'], description=jsonData['message'],
+                                                 url=jsonData['link'],
+                                                 color=0xCF70D3)
+                        if jsonData['image']:  # Checks if there's an image
+                            embedded.set_thumbnail(url=jsonData['image'])
+                        embedded.set_author(name="Turnip Bot",
+                                            url="https://github.com/vlee489/Turnip-Bot/",
+                                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                        embedded.add_field(name="Sections:", value=jsonData['sections'], inline=False)
+                        embedded.add_field(name="price:", value=jsonData['price'], inline=False)
+                        embedded.add_field(name="Length:", value=jsonData['length'], inline=True)
+                        embedded.add_field(name="Period:", value=jsonData['period'], inline=True)
+                        embedded.add_field(name="Scientific Name:", value=jsonData['scientific-name'], inline=True)
+                        embedded.set_footer(text="Info from nookipedia.com")
+                        await ctx.send(embed=embedded)
+                        return
+                except errors.InvalidAPICall:
+                    await ctx.send("Couldn't find villager\n"
+                                   "If the villager's name is in 2 part, use \" to enclose the name.\n"
+                                   "E.G. \"Agent S\"")
+                    return
+                except errors.EndPointValidation as e:
+                    await ctx.send("Internal Error, sorry >.<\n "
+                                   "Issue has been reported to operator.\n"
+                                   "(EndPointInvalid)")
                     print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                                    datetime.datetime.now(),
-                                                                                   "Timeout on API Call"))
-                else:
-                    jsonData = json.loads(resp)  # Load in response as JSON
-                    # Create the discord embed and send it.
-                    embedded = discord.Embed(title=jsonData['name'], description=jsonData['message'],
-                                             url=jsonData['link'],
-                                             color=0xCF70D3)
-                    if jsonData['image']:  # Checks if there's an image
-                        embedded.set_thumbnail(url=jsonData['image'])
-                    embedded.set_author(name="Turnip Bot",
-                                        url="https://github.com/vlee489/Turnip-Bot/",
-                                        icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-                    embedded.add_field(name="Sections:", value=jsonData['sections'], inline=False)
-                    embedded.add_field(name="price:", value=jsonData['price'], inline=False)
-                    embedded.add_field(name="Length:", value=jsonData['length'], inline=True)
-                    embedded.add_field(name="Period:", value=jsonData['period'], inline=True)
-                    embedded.add_field(name="Scientific Name:", value=jsonData['scientific-name'], inline=True)
-                    embedded.set_footer(text="Info from nookipedia.com")
-                    await ctx.send(embed=embedded)
+                                                                                   e))
                     return
-            except errors.InvalidAPICall:
-                await ctx.send("Couldn't find villager\n"
-                               "If the villager's name is in 2 part, use \" to enclose the name.\n"
-                               "E.G. \"Agent S\"")
-                return
-            except errors.EndPointValidation as e:
-                await ctx.send("Internal Error, sorry >.<\n "
-                               "Issue has been reported to operator.\n"
-                               "(EndPointInvalid)")
-                print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
-                                                                               datetime.datetime.now(),
-                                                                               e))
-                return
 
     @commands.command(name='eventsToday',
                       help="Get an overview of all the events on today in AC\n",
                       aliases=['eventstoday'])
     async def todayOverview(self, ctx):
         URL = "https://nookipedia.com/api/today/"
-        async with aiohttp.ClientSession() as session:
-            try:
-                resp = await fetch(session, URL)
-                if resp is None:  # If the response is None, it means that aiohttp has timed out.
-                    await ctx.send("Unable to connect to Nookipedia")
+        with ctx.typing():
+            async with aiohttp.ClientSession() as session:
+                try:
+                    resp = await fetch(session, URL)
+                    if resp is None:  # If the response is None, it means that aiohttp has timed out.
+                        await ctx.send("Unable to connect to Nookipedia")
+                        print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
+                                                                                       datetime.datetime.now(),
+                                                                                       "Timeout on API Call"))
+                    else:
+                        jsonData = json.loads(resp)  # Load in response as JSON
+                        if len(jsonData['events']) < 1:  # We Check that there are events today first
+                            await ctx.send("No events are on today in Animal Crossing\n")
+                            return
+                        embedded = discord.Embed(title='Events Today', description=jsonData['message'], color=0xCF70D3)
+                        embedded.set_author(name="Turnip Bot",
+                                            url="https://github.com/vlee489/Turnip-Bot/",
+                                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                        for x in range(len(jsonData['events'])):  # For each event we add a field and the event info
+                            embedded.add_field(name="Events {}:".format(x + 1), value=jsonData['events'][x],
+                                               inline=False)
+                        embedded.set_footer(text="Info from nookipedia.com")
+                        await ctx.send(embed=embedded)
+                        return
+                except errors.InvalidAPICall:
+                    await ctx.send("Couldn't find villager\n"
+                                   "If the villager's name is in 2 part, use \" to enclose the name.\n"
+                                   "E.G. \"Agent S\"")
+                    return
+                except errors.EndPointValidation as e:
+                    await ctx.send("Internal Error, sorry >.<\n "
+                                   "Issue has been reported to operator.\n"
+                                   "(EndPointInvalid)")
                     print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                                    datetime.datetime.now(),
-                                                                                   "Timeout on API Call"))
-                else:
-                    jsonData = json.loads(resp)  # Load in response as JSON
-                    if len(jsonData['events']) < 1:  # We Check that there are events today first
-                        await ctx.send("No events are on today in Animal Crossing\n")
-                        return
-                    embedded = discord.Embed(title='Events Today', description=jsonData['message'], color=0xCF70D3)
-                    embedded.set_author(name="Turnip Bot",
-                                        url="https://github.com/vlee489/Turnip-Bot/",
-                                        icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-                    for x in range(len(jsonData['events'])):  # For each event we add a field and the event info
-                        embedded.add_field(name="Events {}:".format(x + 1), value=jsonData['events'][x], inline=False)
-                    embedded.set_footer(text="Info from nookipedia.com")
-                    await ctx.send(embed=embedded)
+                                                                                   e))
                     return
-            except errors.InvalidAPICall:
-                await ctx.send("Couldn't find villager\n"
-                               "If the villager's name is in 2 part, use \" to enclose the name.\n"
-                               "E.G. \"Agent S\"")
-                return
-            except errors.EndPointValidation as e:
-                await ctx.send("Internal Error, sorry >.<\n "
-                               "Issue has been reported to operator.\n"
-                               "(EndPointInvalid)")
-                print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
-                                                                               datetime.datetime.now(),
-                                                                               e))
-                return
 
 
 def setup(bot):

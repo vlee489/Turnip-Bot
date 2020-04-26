@@ -5,6 +5,7 @@ home.
 from discord.ext import commands
 import discord
 import pyjokes
+import time
 
 
 class Others(commands.Cog):
@@ -60,6 +61,19 @@ class Others(commands.Cog):
         embedded.add_field(name="Contributors:", value="1", inline=False)
         embedded.add_field(name="Kofi Donations", value="https://ko-fi.com/vlee489", inline=False)
         embedded.add_field(name="Issues report", value="https://github.com/vlee489/Turnip-Bot/issues", inline=False)
+        embedded.set_footer(text="Turnip Bot by vlee489")
+        await ctx.send(embed=embedded)
+
+    @commands.command(name='ping',
+                      help="Get the ping to the bot's server",
+                      pass_context=True)
+    async def ping(self, ctx):
+        embedded = discord.Embed(title='Turnip Bot Ping!', url='https://github.com/vlee489/Turnip-Bot/',
+                                 color=0xCF70D3)
+        embedded.set_author(name="Turnip Bot",
+                            url="https://github.com/vlee489/Turnip-Bot/",
+                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+        embedded.add_field(name="Latency:", value="{}ms".format(round(self.bot.latency*1000, 2)), inline=True)
         embedded.set_footer(text="Turnip Bot by vlee489")
         await ctx.send(embed=embedded)
 
