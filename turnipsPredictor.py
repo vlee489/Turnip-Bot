@@ -51,11 +51,11 @@ class Turnips(commands.Cog):
             response = "Time isn't correct, has to be either `AM` or `PM`"
         await ctx.send(response)
 
-    @commands.command(name='addTurnipPrice', help="Command no longer used, use <ap instead\n",
+    @commands.command(name='addTurnipPrice', help="No longer used, use <ap instead instead with data at end\n",
                       aliases=['atp', 'addturnipprice'])
     async def addSpecificPrice(self, ctx):
         await ctx.send("This commands has now been deprecated/No Longer Used!\n"
-                       "You can now use `<ap time(AM/PM) bells date(DD/MM/YYYY) instead`")
+                       "You can now use `<ap time(AM/PM) bells date(DD/MM/YYYY)`")
 
     @commands.command(name='ts', help="Get your Turnip Summary"
                                       "\n[date]: OPTIONAL Get your summary for a specific week (Defaults to today)",

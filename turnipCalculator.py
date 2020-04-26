@@ -4,29 +4,16 @@ turnipCalculator.py
 Contains all the functions for adding a user's turnip pricing to
 the turnip Database as well as calculating turnip price trends.
 """
-import json
 import boto3
 import auth
 import turnips.meta
 from boto3.dynamodb.conditions import Key
-import decimal
 import datetime
 import errors
 
 # Starts the dynamoDB connection
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(auth.turnipDB_Table)
-
-
-# Helper class to convert a DynamoDB item to JSON.
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            if o % 1 > 0:
-                return float(o)
-            else:
-                return int(o)
-        return super(DecimalEncoder, self).default(o)
 
 
 def addData(discordID, date, time, bells):
@@ -55,7 +42,7 @@ def addData(discordID, date, time, bells):
         raise errors.InvalidDateTime('Invalid time operator')
     # Check that the day generated isn't Sunday
     if "Sunday" in day:
-        raise errors.InvalidPeriod("Sunday isn't valid, Daisy Mae visits then!")
+        raise errors.InvalidPeriod()
     try:
         # Check is if an entry is already available for the user
         response = table.query(
