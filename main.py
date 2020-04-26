@@ -7,6 +7,7 @@ cogs (.py files)
 import auth
 import discord
 from discord.ext import commands
+from discord.utils import find
 import os
 
 TOKEN = auth.discord_Token
@@ -19,6 +20,9 @@ extensions = [
 ]
 
 bot = commands.Bot(command_prefix='<')
+
+helloMessageFile = open("join.txt")
+helloMessage = helloMessageFile.read()
 
 
 # When the bot is loaded
@@ -43,13 +47,20 @@ async def on_ready():
         os.remove("message.txt")  # remove message.txt file
 
 
-        # Handles incorrect input from user
+# Handles incorrect input from user
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Missing data, you got got to enter something after the command!\n"
                        "You can use `<help` for help")
 
+
+@bot.event
+async def on_guild_join(guild):
+    for channel in guild.text_channels:
+        if channel.permissions_for(guild.me).send_messages:
+            await channel.send(helloMessage)
+            break
 
 # Runs the whole show
 if __name__ == "__main__":
