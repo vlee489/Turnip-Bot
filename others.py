@@ -54,7 +54,7 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-        embedded.add_field(name="Version:", value="Alpha 6.0 RC3", inline=False)
+        embedded.add_field(name="Version:", value="Alpha 6.0 RC5", inline=False)
         embedded.add_field(name="Used in number of servers:", value="{} servers".format(len(self.bot.guilds)),
                            inline=False)
         embedded.add_field(name="Contributors:", value="1", inline=False)
