@@ -4,29 +4,16 @@ turnipCalculator.py
 Contains all the functions for adding a user's turnip pricing to
 the turnip Database as well as calculating turnip price trends.
 """
-import json
 import boto3
 import auth
 import turnips.meta
 from boto3.dynamodb.conditions import Key
-import decimal
 import datetime
 import errors
 
 # Starts the dynamoDB connection
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(auth.turnipDB_Table)
-
-
-# Helper class to convert a DynamoDB item to JSON.
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            if o % 1 > 0:
-                return float(o)
-            else:
-                return int(o)
-        return super(DecimalEncoder, self).default(o)
 
 
 def addData(discordID, date, time, bells):
@@ -55,7 +42,7 @@ def addData(discordID, date, time, bells):
         raise errors.InvalidDateTime('Invalid time operator')
     # Check that the day generated isn't Sunday
     if "Sunday" in day:
-        raise errors.InvalidPeriod("Sunday isn't valid, Daisy Mae visits then!")
+        raise errors.InvalidPeriod()
     try:
         # Check is if an entry is already available for the user
         response = table.query(
@@ -85,7 +72,6 @@ def addData(discordID, date, time, bells):
         )
     except Exception as e:
         raise errors.AWSError("Unable to interface with backend")
-
     return True
 
 
@@ -262,9 +248,9 @@ def createTurnipModel(discordID, date):
     )
 
     if len(response['Items']) == 0:
-        raise AttributeError("No data available to make model")
+        raise errors.NoData("No data available to make model")
     elif len(response['Items']) > 1:
-        raise LookupError("System Error, more than one response returned")
+        raise errors.AWSError("System Error, more than one response returned")
         # A lookup error should in theory never happen because discordID and weekBegining as tied together
         # as a dual pair key, so each set of data requires both attributes to exist and one the combo can only
         # exist in one entry together
@@ -293,8 +279,8 @@ def addBuyPrice(discordID, date, bells):
         if successful
     """
     # Works out the date for the beginning of the week
-    if date.strftime('%A') == 'Sunday':
-        date = date + datetime.timedelta(days=2)
+    if date.strftime('%A') == 'Sunday':  # If it's a sunday we need to save the price for the next week actually
+        date = date + datetime.timedelta(days=2)  # So we work out the next week.
     date = date.date()
     beginningOfWeek = date - datetime.timedelta(days=date.weekday())
     day = 'Sunday_AM'
@@ -331,21 +317,23 @@ def addBuyPrice(discordID, date, bells):
             ReturnValues="UPDATED_NEW"
         )
     except Exception as e:
-        raise errors.AWSError("Unable to update table")
+        raise errors.AWSError(e)
 
     return True
 
 
-def clearErrors(discordID) -> str:
+def clearErrors(discordID, date) -> str:
     """
     Attempts to remove data causing errors from Database
+    :param date: datetime
+        The datetime to correct for
     :param discordID: str
         The user's Discord ID
     :return: str
         The list of day/times removes
     """
     # Work out the beginning of the week
-    beginningOfWeek = datetime.datetime.now() - datetime.timedelta(days=datetime.datetime.now().weekday())
+    beginningOfWeek = date - datetime.timedelta(days=date.weekday())
     # We check if we actually need to fix errors by making sure data already present can't produce a report
     try:
         if bool((createTurnipModel(discordID, datetime.datetime.now()).summary())) is True:
@@ -403,86 +391,3 @@ def clearErrors(discordID) -> str:
     return strReply
     # We don't remove the Sunday_AM reference because we error check that value
     # before it's entered anyway so will always be within range being the first value
-
-
-"""
-Any thing belows this deals directly with commands from main.py
-"""
-
-
-def createCurrentSummary(discordID):
-    """
-    Creates the Turnip Summary for the last week
-    :param discordID: str
-        DiscordID for the person to check for
-    :return: str
-        The summary report
-    """
-    date = datetime.datetime.now() + datetime.timedelta(days=1)
-
-    try:
-        model = createTurnipModel(discordID, date)
-        return model.summary()
-    except AttributeError:
-        raise errors.NoData("No data available to make model")
-    except LookupError as e:
-        raise Exception("Too Many Responses from AWS DynamoDB")
-
-
-def addSpecifiedData(discordID, date, time, bells):
-    """
-    Allows for adding data on a specific date and time
-    :param discordID: str
-        User's discordID
-    :param date: str
-        Date to add the data for
-    :param time: str
-        Time to add the data for in either PM or AM
-    :param bells: str
-        The sale price
-    :return:
-        Success message
-    """
-    try:
-        date = datetime.datetime.strptime(date, '%d/%m/%Y')
-    except ValueError:
-        raise errors.InvalidDateFormat("Date format incorrect")
-    time = time.upper()  # Turns the time given into Uppercase
-    if not bells.isdigit():
-        raise Exception("Bells must be given as a number! E.g 1-9")
-    elif time == 'AM' or time == 'PM':
-        try:
-            if addData(discordID, date, time, bells):
-                return "Added price of {} bells for {} at {}".format(bells,
-                                                                     date.strftime('%d/%m/%Y'),
-                                                                     time)
-        except errors.InvalidDateTime:
-            raise errors.InvalidDateTime("Time given to internal system was Invalid! \n"
-                                         "Has to be either `AM` or `PM`")
-        except errors.InvalidPeriod:
-            raise errors.InvalidPeriod("You can't give me a time for Sunday!\n")
-        except errors.AWSError:
-            pass
-    else:
-        raise errors.InvalidDateTime("Time isn't correct, has to be either `AM` or `PM`")
-
-
-def addPurchasePrice(discordID, bells):
-    """
-    Add the turnip price to the DB
-    :param discordID: str
-        User's discordID
-    :param bells: int
-        The cost of turnips
-    :return: boolean
-        if successful
-    """
-    if not bells.isdigit():
-        raise ValueError("Bells must be given as a number! E.g 1-9")
-    try:
-        addBuyPrice(discordID, datetime.datetime.now(), bells)
-        return "Added purchase price of {} bells from Daisy Mae".format(bells)
-    except errors.AWSError as e:
-        raise Exception(e)
-    except errors.BellsOutOfRange as e:
-        raise errors.BellsOutOfRange(e)

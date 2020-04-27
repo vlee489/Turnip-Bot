@@ -99,6 +99,7 @@ class SummaryImage:
             y = y + 29
 
         image.save("tempHolding/{}".format(self.fileName), optimize=True, quality=20)
+        image.close()
         self.created = True
 
     def createGraph(self) -> None:
@@ -178,6 +179,8 @@ class SummaryImage:
         newImage.save("tempHolding/Graph{}".format(self.fileName))  # Save image to temp location
         self.graphCreated = True
         os.remove("tempHolding/graph/{}".format(self.fileName))  # Remove the temp image from matplotlib
+        templateImage.close()
+        graphImage.close()
 
     def uploadImage(self) -> str:
         """
