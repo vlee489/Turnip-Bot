@@ -3,7 +3,6 @@ This cog deals all the lookup commands
 that interface with Nookipedia's private API
 """
 from discord.ext import commands
-import requests
 import auth
 import discord
 import datetime

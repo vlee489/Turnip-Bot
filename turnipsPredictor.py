@@ -18,14 +18,17 @@ class Turnips(commands.Cog):
                                       "\n<bells> : The bells you get for selling turnips"
                                       "\n[date]: OPTIONAL the date you want to enter price for (Defaults to today)",
                       aliases=['AddPrice', 'addprice'])
-    async def addTurnipPrice(self, ctx, time, bells, date=datetime.datetime.now().strftime("%d/%m/%Y")):
+    async def addTurnipPrice(self, ctx, time, bells, date="Today"):
         response = "An Error Has Occurred!"
         time = time.upper()  # Turns the time given into Uppercase
         if not bells.isdigit():
             response = "Bells must be given as a number! E.g 1-9"
         elif time == 'AM' or time == 'PM':
             try:
-                date = datetime.datetime.strptime(date, '%d/%m/%Y')
+                if date == "Today":
+                    date = datetime.datetime.now()
+                else:
+                    date = datetime.datetime.strptime(date, '%d/%m/%Y')
                 if turnipCalculator.addData(ctx.message.author.id, date, time, bells):
                     response = "Added price of {} bells for {} at {}".format(bells,
                                                                              date.strftime('%d/%m/%Y'),
@@ -60,9 +63,12 @@ class Turnips(commands.Cog):
     @commands.command(name='ts', help="Get your Turnip Summary"
                                       "\n[date]: OPTIONAL Get your summary for a specific week (Defaults to today)",
                       aliases=['TurnipSummary', 'turnipsummary'])
-    async def currentTurnipSummary(self, ctx, date=datetime.datetime.now().strftime("%d/%m/%Y")):
+    async def currentTurnipSummary(self, ctx, date="Today"):
         try:
-            date = datetime.datetime.strptime(date, '%d/%m/%Y')
+            if date == "Today":
+                date = datetime.datetime.now()
+            else:
+                date = datetime.datetime.strptime(date, '%d/%m/%Y')
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -115,9 +121,12 @@ class Turnips(commands.Cog):
                                        "This is built for people using screen readers, use <ts if you can"
                                        "\n[date]: OPTIONAL Get your summary for a specific week (Defaults to today)",
                       aliases=['TurnipSummaryText', 'turnipsummarytext'])
-    async def currentTurnipSummaryText(self, ctx, date=datetime.datetime.now().strftime("%d/%m/%Y")):
+    async def currentTurnipSummaryText(self, ctx, date="Today"):
         try:
-            date = datetime.datetime.strptime(date, '%d/%m/%Y')
+            if date == "Today":
+                date = datetime.datetime.now()
+            else:
+                date = datetime.datetime.strptime(date, '%d/%m/%Y')
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -162,9 +171,12 @@ class Turnips(commands.Cog):
                       help="Get your Turnip Summary Graph"
                            "\n[date]: OPTIONAL Get your summary for a specific week (Defaults to today)",
                       aliases=['tsg', 'turnipsummarygraph', 'turnipSummaryGraph'])
-    async def tsgraph(self, ctx, date=datetime.datetime.now().strftime("%d/%m/%Y")):
+    async def tsgraph(self, ctx, date="Today"):
         try:
-            date = datetime.datetime.strptime(date, '%d/%m/%Y')
+            if date == "Today":
+                date = datetime.datetime.now()
+            else:
+                date = datetime.datetime.strptime(date, '%d/%m/%Y')
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -217,12 +229,15 @@ class Turnips(commands.Cog):
                            "\n<bells>: The amount of bells each turnip cost."
                            "\n[date]: OPTIONAL Set a price for a specific week",
                       aliases=['setbuyprice', 'sbp'])
-    async def setBuyPrice(self, ctx, bells, date=datetime.datetime.now().strftime("%d/%m/%Y")):
+    async def setBuyPrice(self, ctx, bells, date="Today"):
         if not bells.isdigit():
             await ctx.send("Bells must be given as a number! E.g 1-9")
             return
         try:
-            date = datetime.datetime.strptime(date, '%d/%m/%Y')
+            if date == "Today":
+                date = datetime.datetime.now()
+            else:
+                date = datetime.datetime.strptime(date, '%d/%m/%Y')
             turnipCalculator.addBuyPrice(ctx.message.author.id, date, bells)
             await ctx.send("Added purchase price of {} bells from Daisy Mae on {}".format(bells, date))
         except errors.BellsOutOfRange as e:
@@ -242,8 +257,11 @@ class Turnips(commands.Cog):
     @commands.command(name='removeInvalidData',
                       help="Helps find and remove invalid data from to make your turnip summary generate.\n",
                       aliases=["correctErrors", "removeinvaliddata", 'rid'])
-    async def correctErrors(self, ctx, date=datetime.datetime.now().strftime("%d/%m/%Y")):
-        date = datetime.datetime.strptime(date, '%d/%m/%Y')
+    async def correctErrors(self, ctx, date="Today"):
+        if date == "Today":
+            date = datetime.datetime.now()
+        else:
+            date = datetime.datetime.strptime(date, '%d/%m/%Y')
         try:
             removedDate = turnipCalculator.clearErrors(ctx.message.author.id, date)
             await ctx.send("I've removed all the data that was causing an error now!\n"

@@ -7,7 +7,6 @@ cogs (.py files)
 import auth
 import discord
 from discord.ext import commands
-from discord.utils import find
 import os
 
 TOKEN = auth.discord_Token
