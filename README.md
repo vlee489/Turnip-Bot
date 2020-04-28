@@ -4,10 +4,14 @@ related features.
 
 [![Join](images/join.png)](https://discordapp.com/api/oauth2/authorize?client_id=701173984489635850&permissions=379968&scope=bot)
 
+[![Discord Bots](https://top.gg/api/widget/701173984489635850.svg)](https://top.gg/bot/701173984489635850)
+
+[Need Support? Join my guild on Discord](https://discord.gg/JPrC6c2)
+
 ### Currently Features
 - Turnip price prediction(*Alpha*)
 - Turnip price tracking(*Alpha*)
-- Villager Lookup
+- Villager Lookup (*Beta*)
 - Fish Lookup (*Beta*)
 - Bug Lookup (*Beta*)
 - Fossil Lookup (*Beta*)
