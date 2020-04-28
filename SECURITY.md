@@ -18,10 +18,14 @@ Data needed for discolosure.
 - reproduction steps
 - More detailed explination. 
 
-the prefered way of disclosing Security Vulnerability via GitHub's builit in secuity feature over 
+The prefered way of disclosing Security Vulnerability via GitHub's builit in secuity feature over 
 at the [Security Tab](https://github.com/vlee489/Turnip-Bot/security/advisories).
 A reply will usually be given within 48 hours of disclosure, with a time frame to correct issues
 or 30 days or less.
+
+During this 30 day period Security advisories should stay as a draft to give adiquate time to correct
+the issue at hand. After this 30 day period or when the issue is patches (*Which ever comes first*), 
+the Security advisories may then be published along with the related patches.
 
 Another way of disclosing issues is directly DMing Vincent/vlee489#5801 
 on the [Discord bot support server](https://discord.gg/JPrC6c2)
