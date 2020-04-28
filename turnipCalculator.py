@@ -70,7 +70,7 @@ def addData(discordID, date, time, bells):
             },
             ReturnValues="UPDATED_NEW"
         )
-    except Exception as e:
+    except Exception:
         raise errors.AWSError("Unable to interface with backend")
     return True
 
@@ -378,11 +378,8 @@ def clearErrors(discordID, date) -> str:
             raise errors.AWSError(e)
         # We then check if we can then create a model.
         if bool((createTurnipModel(discordID, datetime.datetime.now()).summary())) is True:
-            # if we can create a model, then we return the list of dates that got removed
-            strReply = ""
-            for date in removedDates:
-                strReply = strReply + "{}, ".format(date)
-            return strReply
+            # if we can create a model, then we break
+            break
         # if not the loop continues to remove dates in order till we can create a model
     # if we finish the loop, then we return all the dates removed.
     strReply = ""

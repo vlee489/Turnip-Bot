@@ -5,7 +5,6 @@ home.
 from discord.ext import commands
 import discord
 import pyjokes
-import time
 
 
 class Others(commands.Cog):
@@ -73,7 +72,7 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-        embedded.add_field(name="Latency:", value="{}ms".format(round(self.bot.latency*1000, 2)), inline=True)
+        embedded.add_field(name="Latency:", value="{}ms".format(round(self.bot.latency * 1000, 2)), inline=True)
         embedded.set_footer(text="Turnip Bot by vlee489")
         await ctx.send(embed=embedded)
 
