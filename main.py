@@ -3,14 +3,13 @@ This file contains all the main event handlers for the
 Turnip Bot. All the separate categories are in their own
 cogs (.py files)
 """
-
-import auth
 import discord
 from discord.ext import commands
 import os
+from dotenv import load_dotenv
 
-TOKEN = auth.discord_Token
-
+load_dotenv(".env")
+TOKEN = os.environ.get("discord_Token")
 # This is the list of cogs that discord.py loads in as file names without the .py extension
 extensions = [
     'turnipsPredictor',

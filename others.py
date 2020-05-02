@@ -6,7 +6,10 @@ from discord.ext import commands
 import discord
 import pyjokes
 import numpy
-import auth
+import os
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 
 petPicNumber = 44
 
@@ -14,6 +17,7 @@ petPicNumber = 44
 class Others(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.CDNLink = os.environ.get("CDNLink")
 
     @commands.command(name='joke',
                       help="Get a random joke.")
@@ -115,7 +119,7 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-        embedded.set_image(url="{}/TurnipBot/pets/{}.png".format(auth.CDNLink, numpy.random.randint(0, petPicNumber)))
+        embedded.set_image(url="{}/TurnipBot/pets/{}.png".format(self.CDNLink, numpy.random.randint(0, petPicNumber)))
         await ctx.send(embed=embedded)
 
 

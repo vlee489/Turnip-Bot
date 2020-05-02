@@ -3,7 +3,6 @@ This python script is responsible for creating images for
 a user's Turnip Summary and then uploading to AWS S3.
 """
 from PIL import Image, ImageDraw, ImageFont
-import auth
 import boto3
 import botocore.config as bcc
 from boto3.s3.transfer import S3Transfer
@@ -15,13 +14,18 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.font_manager as fm
 import errors
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 
 # Initiate session
 # Config to limit retry attempts
 boto3Config = bcc.Config(connect_timeout=5, read_timeout=60, retries={'max_attempts': 1})
 session = boto3.session.Session()
-client = session.client('s3', region_name=auth.aws_region_name, endpoint_url=auth.endpoint_url,
-                        aws_access_key_id=auth.aws_access_key_id, aws_secret_access_key=auth.aws_secret_access_key,
+client = session.client('s3', region_name=os.environ.get("S3_region_name"),
+                        endpoint_url=os.environ.get("endpoint_url"),
+                        aws_access_key_id=os.environ.get("S3_access_key_id"),
+                        aws_secret_access_key=os.environ.get("S3_secret_access_key"),
                         config=boto3Config)
 transfer = S3Transfer(client)
 
@@ -71,6 +75,8 @@ class SummaryImage:
         self.turnip_data = TurnipData
         self.discordID = discordID
         self.fileName = "{}-{}.png".format(discordID, datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+        self.aws_bucket = os.environ.get("S3_bucket")
+        self.CDNLink = os.environ.get("CDNLink")
 
     def createImage(self) -> None:
         """
@@ -193,11 +199,11 @@ class SummaryImage:
         try:
             # Upload files to S3
             client.upload_file("tempHolding/{}".format(self.fileName),
-                           auth.aws_bucket,
+                           self.aws_bucket,
                            "TurnipBot/predictions/{}".format(self.fileName),
                            ExtraArgs={'ACL': 'public-read'})
             os.remove("tempHolding/{}".format(self.fileName))  # remove temp file
-            return "{}/TurnipBot/predictions/{}".format(auth.CDNLink, self.fileName)
+            return "{}/TurnipBot/predictions/{}".format(self.CDNLink, self.fileName)
         except be.ClientError as e:
             os.remove("tempHolding/Graph{}".format(self.fileName))
             raise errors.AWSError(e)
@@ -216,11 +222,11 @@ class SummaryImage:
         try:
             # Upload files to S3
             client.upload_file("tempHolding/Graph{}".format(self.fileName),
-                               auth.aws_bucket,
+                               self.aws_bucket,
                                "TurnipBot/predictions/Graph{}".format(self.fileName),
                                ExtraArgs={'ACL': 'public-read'})
             os.remove("tempHolding/Graph{}".format(self.fileName))  # remove temp file
-            return "{}/TurnipBot/predictions/Graph{}".format(auth.CDNLink, self.fileName)
+            return "{}/TurnipBot/predictions/Graph{}".format(self.CDNLink, self.fileName)
         except be.ClientError as e:
             os.remove("tempHolding/Graph{}".format(self.fileName))
             raise errors.AWSError(e)

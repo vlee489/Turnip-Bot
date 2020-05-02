@@ -3,17 +3,20 @@ This cog deals all the lookup commands
 """
 import asyncio
 from discord.ext import commands, tasks
-import auth
 import discord
 from lookupAPI import nookipediaAPI
+import os
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 
 
 async def getVillagerList():
-    return await nookipediaAPI.NookipediaAPI(auth.nookipedia_API_key).getVillagerList()
+    return await nookipediaAPI.NookipediaAPI(os.environ.get("nookipedia_API_key")).getVillagerList()
 
 
 class Lookup(commands.Cog):
-    nookAPI = nookipediaAPI.NookipediaAPI(auth.nookipedia_API_key)
+    nookAPI = nookipediaAPI.NookipediaAPI(os.environ.get("nookipedia_API_key"))
 
     def __init__(self, bot):
         loop = asyncio.get_event_loop()

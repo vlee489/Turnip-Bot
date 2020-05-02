@@ -5,15 +5,18 @@ Contains all the functions for adding a user's turnip pricing to
 the turnip Database as well as calculating turnip price trends.
 """
 import boto3
-import auth
 import turnips.meta
 from boto3.dynamodb.conditions import Key
 import datetime
 import errors
+import os
+from dotenv import load_dotenv
+load_dotenv(".env")
 
 # Starts the dynamoDB connection
+session = boto3.Session(profile_name='default')
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table(auth.turnipDB_Table)
+table = dynamodb.Table(os.environ.get("turnipDB_Table"))
 
 
 def addData(discordID, date, time, bells):
