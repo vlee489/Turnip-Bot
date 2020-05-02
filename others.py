@@ -8,7 +8,8 @@ import pyjokes
 import numpy
 import auth
 
-petPicNumber = 32
+petPicNumber = 44
+
 
 class Others(commands.Cog):
     def __init__(self, bot):
