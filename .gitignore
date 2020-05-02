@@ -204,3 +204,7 @@ fabric.properties
 turnips/
 auth.py
 
+
+lookupAPI/
+
+pictureConverter.py

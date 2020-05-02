@@ -5,6 +5,10 @@ home.
 from discord.ext import commands
 import discord
 import pyjokes
+import numpy
+import auth
+
+petPicNumber = 44
 
 
 class Others(commands.Cog):
@@ -12,7 +16,7 @@ class Others(commands.Cog):
         self.bot = bot
 
     @commands.command(name='joke',
-                          help="Get a random joke.")
+                      help="Get a random joke.")
     async def joke(self, ctx):
         joke = pyjokes.get_joke()
         embedded = discord.Embed(title=joke, color=0xCF70D3)
@@ -54,7 +58,7 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
-        embedded.add_field(name="Version:", value="Alpha 6.0 RC5", inline=False)
+        embedded.add_field(name="Version:", value="Alpha 6.0 RC7", inline=False)
         embedded.add_field(name="Used in number of servers:", value="{} servers".format(len(self.bot.guilds)),
                            inline=False)
         embedded.add_field(name="Contributors:", value="1", inline=False)
@@ -86,6 +90,32 @@ class Others(commands.Cog):
                             icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
         embedded.add_field(name="Discord Support Server", value="https://discord.gg/JPrC6c2", inline=False)
         embedded.set_footer(text="Turnip Bot by vlee489")
+        await ctx.send(embed=embedded)
+
+    @commands.command(name='test', help="Join My Server for support",
+                      pass_context=True)
+    async def test(self, ctx):
+        print('hi')
+        embeded = {
+                      'author': {
+                          'name': 'embedTest',
+                          'icon_url': 'https://vlee.me.uk'
+                      },
+                      'title': "This is an embed",
+                      'url': "http://google.com",
+                      'description': "This is a test embed to showcase what they look like and what they can do.",
+        }
+        await ctx.send(embed=discord.Embed.from_dict(embeded))
+
+    @commands.command(name='pet', help="Get a picture of a pet",
+                      pass_context=True)
+    async def pet(self, ctx):
+        embedded = discord.Embed(title='Pets!', url='https://github.com/vlee489/Turnip-Bot/wiki/Credits',
+                                 color=0xCF70D3)
+        embedded.set_author(name="Turnip Bot",
+                            url="https://github.com/vlee489/Turnip-Bot/",
+                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+        embedded.set_image(url="{}/TurnipBot/pets/{}.png".format(auth.CDNLink, numpy.random.randint(0, petPicNumber)))
         await ctx.send(embed=embedded)
 
 
