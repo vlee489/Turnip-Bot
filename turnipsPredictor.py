@@ -16,7 +16,7 @@ class Turnips(commands.Cog):
     @commands.command(name='ap', help="Adds price to the turnip price storage"
                                       "\n<Time> : Either PM or AM "
                                       "\n<bells> : The bells you get for selling turnips"
-                                      "\n[date]: OPTIONAL the date you want to enter price for (Defaults to today)",
+                                      "\n[date]: OPTIONAL the date you want to enter price for in DD/MM/YYYY",
                       aliases=['AddPrice', 'addprice'])
     async def addTurnipPrice(self, ctx, time, bells, date="Today"):
         response = "An Error Has Occurred!"
@@ -61,7 +61,7 @@ class Turnips(commands.Cog):
                        "You can now use `<ap time(AM/PM) bells date(DD/MM/YYYY)`")
 
     @commands.command(name='ts', help="Get your Turnip Summary"
-                                      "\n[date]: OPTIONAL Get your summary for a specific week (Defaults to today)",
+                                      "\n[date]: OPTIONAL Get your summary for a specific week in DD/MM/YYYY",
                       aliases=['TurnipSummary', 'turnipsummary'])
     async def currentTurnipSummary(self, ctx, date="Today"):
         try:
@@ -119,7 +119,7 @@ class Turnips(commands.Cog):
 
     @commands.command(name='tst', help="Get your Turnip Summary as text\n"
                                        "This is built for people using screen readers, use <ts if you can"
-                                       "\n[date]: OPTIONAL Get your summary for a specific week (Defaults to today)",
+                                       "\n[date]: OPTIONAL Get your summary for a specific week in DD/MM/YYYY",
                       aliases=['TurnipSummaryText', 'turnipsummarytext'])
     async def currentTurnipSummaryText(self, ctx, date="Today"):
         try:
@@ -169,7 +169,7 @@ class Turnips(commands.Cog):
 
     @commands.command(name='tsgraph',
                       help="Get your Turnip Summary Graph"
-                           "\n[date]: OPTIONAL Get your summary for a specific week (Defaults to today)",
+                           "\n[date]: OPTIONAL Get your summary for a specific week in DD/MM/YYYY",
                       aliases=['tsg', 'turnipsummarygraph', 'turnipSummaryGraph'])
     async def tsgraph(self, ctx, date="Today"):
         try:
@@ -227,7 +227,7 @@ class Turnips(commands.Cog):
     @commands.command(name='setBuyPrice',
                       help="Set the Price you bought the turnips for from Daisy Mae this week."
                            "\n<bells>: The amount of bells each turnip cost."
-                           "\n[date]: OPTIONAL Set a price for a specific week",
+                           "\n[date]: OPTIONAL Set a price for a specific week in DD/MM/YYYY",
                       aliases=['setbuyprice', 'sbp'])
     async def setBuyPrice(self, ctx, bells, date="Today"):
         if not bells.isdigit():
