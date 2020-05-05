@@ -7,3 +7,4 @@ matplotlib
 numpy
 aiohttp
 dblpy
+python-dotenv
