@@ -20,7 +20,7 @@ class Others(commands.Cog):
         self.CDNLink = os.environ.get("CDNLink")
 
     @commands.command(name='joke',
-                      help="Get a random joke.")
+                      help="Get a random programmer joke.")
     async def joke(self, ctx):
         joke = pyjokes.get_joke()
         embedded = discord.Embed(title=joke, color=0xCF70D3)
