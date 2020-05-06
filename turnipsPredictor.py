@@ -9,6 +9,17 @@ import discord
 import errors
 
 
+def getDate(date: str) -> datetime:
+    try:
+        if date == "Today":
+            date = datetime.datetime.now()
+        else:
+            date = datetime.datetime.strptime(date, '%d/%m/%Y')
+    except ValueError:
+        raise errors.InvalidDateFormat
+    return date
+
+
 class Turnips(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -25,10 +36,7 @@ class Turnips(commands.Cog):
             response = "Bells must be given as a number! E.g 1-9"
         elif time == 'AM' or time == 'PM':
             try:
-                if date == "Today":
-                    date = datetime.datetime.now()
-                else:
-                    date = datetime.datetime.strptime(date, '%d/%m/%Y')
+                date = getDate(date)
                 if turnipCalculator.addData(ctx.message.author.id, date, time, bells):
                     response = "Added price of {} bells for {} at {}".format(bells,
                                                                              date.strftime('%d/%m/%Y'),
@@ -38,8 +46,8 @@ class Turnips(commands.Cog):
                            "Has to be either `AM` or `PM`"
             except errors.InvalidPeriod:
                 response = "You can't give me a time and price for Sunday!"
-            except ValueError:
-                raise errors.InvalidDateFormat("Date format incorrect")
+            except errors.InvalidDateFormat:
+                await ctx.send("Error: Invalid Date format given")
             except errors.AWSError as error:
                 response = "Unable to store data!\nError been reported to operator"
                 print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
@@ -54,21 +62,12 @@ class Turnips(commands.Cog):
             response = "Time isn't correct, has to be either `AM` or `PM`"
         await ctx.send(response)
 
-    @commands.command(name='addTurnipPrice', help="No longer used, use <ap instead instead with data at end\n",
-                      aliases=['atp', 'addturnipprice'])
-    async def addSpecificPrice(self, ctx):
-        await ctx.send("This commands has now been deprecated/No Longer Used!\n"
-                       "You can now use `<ap time(AM/PM) bells date(DD/MM/YYYY)`")
-
     @commands.command(name='ts', help="Get your Turnip Summary"
                                       "\n[date]: OPTIONAL Get your summary for a specific week in DD/MM/YYYY",
                       aliases=['TurnipSummary', 'turnipsummary'])
     async def currentTurnipSummary(self, ctx, date="Today"):
         try:
-            if date == "Today":
-                date = datetime.datetime.now()
-            else:
-                date = datetime.datetime.strptime(date, '%d/%m/%Y')
+            date = getDate(date)
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -85,9 +84,10 @@ class Turnips(commands.Cog):
                                      color=0xCF70D3)
             embedded.set_author(name="Turnip Bot",
                                 url="https://github.com/vlee489/Turnip-Bot/",
-                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                                icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
             embedded.set_image(url=img_URL)
-            embedded.set_footer(text="Turnip Bot : {}".format(datetime.datetime.now().strftime('%d/%m/%Y %H:%M')))
+            embedded.set_footer(text="Turnip Bot", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
+            embedded.timestamp = datetime.datetime.now()
             await ctx.send(embed=embedded)
         except errors.FileNotCreated as e:
             await ctx.send("Failed to create image of summary >.<\n "
@@ -106,8 +106,8 @@ class Turnips(commands.Cog):
             await ctx.send("No Data to create model with\n "
                            "So your prices will be somewhere between 0 to 700.\n"
                            "Use `<ap` and/or `<setBuyPrice` to get started!")
-        except ValueError:
-            raise errors.InvalidDateFormat("Date format incorrect")
+        except errors.InvalidDateFormat:
+            await ctx.send("Error: Invalid Date format given")
         except Exception as e:
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
@@ -123,10 +123,7 @@ class Turnips(commands.Cog):
                       aliases=['TurnipSummaryText', 'turnipsummarytext'])
     async def currentTurnipSummaryText(self, ctx, date="Today"):
         try:
-            if date == "Today":
-                date = datetime.datetime.now()
-            else:
-                date = datetime.datetime.strptime(date, '%d/%m/%Y')
+            date = getDate(date)
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -156,8 +153,8 @@ class Turnips(commands.Cog):
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
                                                                            e))
-        except ValueError:
-            raise errors.InvalidDateFormat("Date format incorrect")
+        except errors.InvalidDateFormat:
+            await ctx.send("Error: Invalid Date format given")
         except Exception as e:
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
@@ -173,10 +170,7 @@ class Turnips(commands.Cog):
                       aliases=['tsg', 'turnipsummarygraph', 'turnipSummaryGraph'])
     async def tsgraph(self, ctx, date="Today"):
         try:
-            if date == "Today":
-                date = datetime.datetime.now()
-            else:
-                date = datetime.datetime.strptime(date, '%d/%m/%Y')
+            date = getDate(date)
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -193,9 +187,10 @@ class Turnips(commands.Cog):
                                      color=0xCF70D3)
             embedded.set_author(name="Turnip Bot",
                                 url="https://github.com/vlee489/Turnip-Bot/",
-                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                                icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
             embedded.set_image(url=img_URL)
-            embedded.set_footer(text="Turnip Bot : {}".format(datetime.datetime.now().strftime('%d/%m/%Y %H:%M')))
+            embedded.set_footer(text="Turnip Bot", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
+            embedded.timestamp = datetime.datetime.now()
             await ctx.send(embed=embedded)
         except errors.FileNotCreated as e:
             await ctx.send("Failed to create image of summary >.<\n "
@@ -213,8 +208,8 @@ class Turnips(commands.Cog):
             await ctx.send("No Data to create model with\n "
                            "So your prices will be somewhere between 0 to 700.\n"
                            "Use `<ap` and/or `<setBuyPrice` to get started!")
-        except ValueError:
-            raise errors.InvalidDateFormat("Date format incorrect")
+        except errors.InvalidDateFormat:
+            await ctx.send("Error: Invalid Date format given")
         except Exception as e:
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
@@ -234,17 +229,14 @@ class Turnips(commands.Cog):
             await ctx.send("Bells must be given as a number! E.g 1-9")
             return
         try:
-            if date == "Today":
-                date = datetime.datetime.now()
-            else:
-                date = datetime.datetime.strptime(date, '%d/%m/%Y')
+            date = getDate(date)
             turnipCalculator.addBuyPrice(ctx.message.author.id, date, bells)
             await ctx.send("Added purchase price of {} bells from Daisy Mae on {}".format(bells, date))
         except errors.BellsOutOfRange as e:
             await ctx.send("Purchase price must be between 90-110 bells")
             return
-        except ValueError:
-            raise errors.InvalidDateFormat("Date format incorrect")
+        except errors.InvalidDateFormat:
+            await ctx.send("Error: Invalid Date format given")
         except Exception as error:
             await ctx.send("Internal Error, sorry >.<\n "
                            "Issue has been reported to operator.\n"
@@ -258,11 +250,8 @@ class Turnips(commands.Cog):
                       help="Helps find and remove invalid data from to make your turnip summary generate.\n",
                       aliases=["correctErrors", "removeinvaliddata", 'rid'])
     async def correctErrors(self, ctx, date="Today"):
-        if date == "Today":
-            date = datetime.datetime.now()
-        else:
-            date = datetime.datetime.strptime(date, '%d/%m/%Y')
         try:
+            date = getDate(date)
             removedDate = turnipCalculator.clearErrors(ctx.message.author.id, date)
             await ctx.send("I've removed all the data that was causing an error now!\n"
                            "You should be able to run summary commands again now.\n"
@@ -292,6 +281,51 @@ class Turnips(commands.Cog):
             print("ERROR:\nDiscordID: {}\nTime:{}\nError:{}\n-----".format(ctx.message.author.id,
                                                                            datetime.datetime.now(),
                                                                            error))
+
+    @commands.command(name='removePrice', help="Remove a price from turnip price storage"
+                                               "\n<Time> : Either PM or AM "
+                                               "\n<date> : The date you want to enter price for in DD/MM/YYYY",
+                      aliases=['RemovePrice', 'rp', 'removeprice'])
+    async def removePrice(self, ctx, time, date):
+        time = time.upper()  # Turns the time given into Uppercase
+        try:
+            date = getDate(date)
+            responseBool = turnipCalculator.removePrice(ctx.message.author.id, date, time)
+            if responseBool:
+                await ctx.send("We have removed the the entry for {} on {}".format(time, date.strftime("%d/%m/%Y")))
+            else:
+                await ctx.send("We where **Unable** to remove the entry for {} on {} "
+                               "\nLikely doesn't exist".format(time, date.strftime("%d/%m/%Y")))
+        except errors.InvalidDateTime:
+            await ctx.send("Error: Invalid date given!")
+        except errors.InvalidDateFormat:
+            await ctx.send("Error: Invalid Date format given")
+        except errors.AWSError:
+            await ctx.send("There was an error getting to the database")
+
+    @commands.command(name='getPrice', help="View the prices you have given to Turnip Bot"
+                                             "\n[date]: OPTIONAL Set a price for a specific week in DD/MM/YYYY",
+                      aliases=['gp', 'GetPrice', 'getprice'])
+    async def viewPrice(self, ctx, date="Today"):
+        try:
+            date = getDate(date)
+            printOut = "```\n"
+            prices = turnipCalculator.getPrices(ctx.message.author.id, date)
+            for items in prices:
+                printOut = printOut + "{:16}: {:4}\n".format(items, prices[items])
+            printOut = printOut + "```"
+            embedded = discord.Embed(title="Turnip Price List", description="The Turnip Prices you've given",
+                                     color=0xCF70D3)
+            embedded.set_author(name="Turnip Bot",
+                                url="https://github.com/vlee489/Turnip-Bot/",
+                                icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
+            embedded.add_field(name="Price on file:", value=printOut, inline=False)
+            embedded.set_footer(text="Turnip Bot", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
+            embedded.timestamp = datetime.datetime.now()
+            await ctx.send(embed=embedded)
+        except errors.InvalidDateFormat:
+            await ctx.send("Error: Invalid Date Format")
+
 
 
 def setup(bot):

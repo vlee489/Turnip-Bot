@@ -11,6 +11,7 @@ import datetime
 import errors
 import os
 from dotenv import load_dotenv
+
 load_dotenv(".env")
 
 # Starts the dynamoDB connection
@@ -391,3 +392,122 @@ def clearErrors(discordID, date) -> str:
     return strReply
     # We don't remove the Sunday_AM reference because we error check that value
     # before it's entered anyway so will always be within range being the first value
+
+
+def deleteTurnipData(discordID: str) -> int:
+    """
+    Delete all turnip data from a given user
+    :param discordID: str
+        Discord ID of the User we want to delete turnip data for
+    :return: bool
+        If the operation was successful or not
+    """
+    deleteCount = 0
+    try:
+        # We query the DB for all the entries the user has made, so we can get the sort key needed to delete items
+        response = table.query(
+            KeyConditionExpression=Key('discordID').eq(str(discordID))
+        )
+        if response['Count'] <= 0:
+            raise errors.NoData("No data in database")
+        else:
+            for entries in response['Items']:
+                deleteResponse = table.delete_item(
+                    Key={
+                        'discordID': discordID,
+                        'weekBegining': entries['weekBegining']
+                    }
+                )
+                if deleteResponse["ResponseMetadata"]['HTTPStatusCode'] != 200:
+                    raise errors.AWSError("Unable to delete entry")
+                else:
+                    deleteCount = deleteCount + 1
+    except Exception as e:
+        pass
+    return deleteCount
+
+
+def removePrice(discordID: str, date: datetime, time: str) -> bool:
+    """
+    Removes a price entry for a specified date and time
+    :param discordID: str
+        Discord ID of user
+    :param date: datetime
+        dateTme to delete entry for
+    :param time: str
+        Either PM or AM (Doesn't matter for Sunday)
+    :return: bool
+        If delete was successful or not.
+    """
+    date = date.date()
+    beginningOfWeek = date - datetime.timedelta(days=date.weekday())
+    day = date.strftime('%A')
+    # Works out the field to place the data into.
+    if day == "Sunday":
+        day = "Sunday_AM"
+    elif time == 'AM':
+        day = day + '_AM'
+    elif time == 'PM':
+        day = day + '_PM'
+    else:  # If an invalid date was given
+        raise errors.InvalidDateTime('Invalid time operator')
+    # Issue update command to DB to delete field
+    updateResponse = table.update_item(
+        Key={
+            'discordID': discordID,
+            'weekBegining': str(beginningOfWeek.strftime('%d/%m/%Y'))
+        },
+        UpdateExpression='REMOVE timeline.{}'.format(day),
+        ReturnValues='UPDATED_OLD',
+    )
+    # If we get something other than a 200, we raise an error from AWS
+    if updateResponse['ResponseMetadata']['HTTPStatusCode'] != 200:
+        raise errors.AWSError("Unable to delete entry on DB")
+    # Then we check if the response given has the date we asked
+    if "Attributes" in updateResponse:
+        if day in updateResponse['Attributes']['timeline']:
+            return True  # If it does we return true
+    return False  # Else we return false
+
+
+def daySort(day):
+    day = day.split(" ")[0]
+    return {'Sunday': 0,
+            'Monday': 1,
+            "Tuesday": 2,
+            "Wednesday": 3,
+            "Thursday": 4,
+            "Friday": 5,
+            "Saturday": 6}[day]
+
+
+def getPrices(discordID: str, date: datetime) -> dict:
+    """
+    Get a dict with all the prices the user has for a week.
+    :param date: datetime
+        the datetime to look for
+    :param discordID: str
+        The discord ID of the user
+    :return: dict
+        A dict will all the days and the prices they've entered
+    """
+    date = date.date()
+    beginningOfWeek = date - datetime.timedelta(days=date.weekday())
+
+    response = table.query(
+        KeyConditionExpression=Key('discordID').eq(str(discordID)) &
+                               Key('weekBegining').eq(str(beginningOfWeek.strftime('%d/%m/%Y')))
+    )
+    if len(response['Items']) == 0:
+        raise errors.NoData("No data available to make model")
+
+    tempDict = {}
+    i = response['Items'][0]
+    for day in i['timeline']:
+        if "Sunday" in day:
+            tempDict["Sunday Buy Price"] = int(i['timeline'][day])
+        else:
+            date = day.split("_")
+            tempDict["{} {}".format(date[0], date[1])] = int(i['timeline'][day])
+    return dict(sorted(tempDict.items(), key=lambda t: daySort(t[0])))
+

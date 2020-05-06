@@ -14,7 +14,8 @@ TOKEN = os.environ.get("discord_Token")
 extensions = [
     'turnipsPredictor',
     'lookup',
-    'others'
+    'others',
+    'user'
 ]
 
 bot = commands.Bot(command_prefix='<')
