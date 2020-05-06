@@ -11,6 +11,7 @@ import datetime
 import errors
 import os
 from dotenv import load_dotenv
+
 load_dotenv(".env")
 
 # Starts the dynamoDB connection
@@ -391,3 +392,36 @@ def clearErrors(discordID, date) -> str:
     return strReply
     # We don't remove the Sunday_AM reference because we error check that value
     # before it's entered anyway so will always be within range being the first value
+
+
+def deleteTurnipData(discordID: str) -> int:
+    """
+    Delete all turnip data from a given user
+    :param discordID: str
+        Discord ID of the User we want to delete turnip data for
+    :return: bool
+        If the operation was successful or not
+    """
+    deleteCount = 0
+    try:
+        # We query the DB for all the entries the user has made, so we can get the sort key needed to delete items
+        response = table.query(
+            KeyConditionExpression=Key('discordID').eq(str(discordID))
+        )
+        if response['Count'] <= 0:
+            raise errors.NoData("No data in database")
+        else:
+            for entries in response['Items']:
+                deleteResponse = table.delete_item(
+                    Key={
+                        'discordID': discordID,
+                        'weekBegining': entries['weekBegining']
+                    }
+                )
+                if deleteResponse["ResponseMetadata"]['HTTPStatusCode'] != 200:
+                    raise errors.AWSError("Unable to delete entry")
+                else:
+                    deleteCount = deleteCount + 1
+    except Exception as e:
+        pass
+    return deleteCount
