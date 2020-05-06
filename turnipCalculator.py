@@ -4,29 +4,20 @@ turnipCalculator.py
 Contains all the functions for adding a user's turnip pricing to
 the turnip Database as well as calculating turnip price trends.
 """
-import json
 import boto3
-import auth
 import turnips.meta
 from boto3.dynamodb.conditions import Key
-import decimal
 import datetime
 import errors
+import os
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 
 # Starts the dynamoDB connection
+session = boto3.Session(profile_name='default')
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table(auth.turnipDB_Table)
-
-
-# Helper class to convert a DynamoDB item to JSON.
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            if o % 1 > 0:
-                return float(o)
-            else:
-                return int(o)
-        return super(DecimalEncoder, self).default(o)
+table = dynamodb.Table(os.environ.get("turnipDB_Table"))
 
 
 def addData(discordID, date, time, bells):
@@ -55,7 +46,7 @@ def addData(discordID, date, time, bells):
         raise errors.InvalidDateTime('Invalid time operator')
     # Check that the day generated isn't Sunday
     if "Sunday" in day:
-        raise errors.InvalidPeriod("Sunday isn't valid, Daisy Mae visits then!")
+        raise errors.InvalidPeriod()
     try:
         # Check is if an entry is already available for the user
         response = table.query(
@@ -83,13 +74,12 @@ def addData(discordID, date, time, bells):
             },
             ReturnValues="UPDATED_NEW"
         )
-    except Exception as e:
+    except Exception:
         raise errors.AWSError("Unable to interface with backend")
-
     return True
 
 
-def numericalTimeSlot(day):
+def numericalTimeSlot(day) -> int:
     """
     Returns the numerical day of thr timeslot given
     :param day: str
@@ -113,6 +103,32 @@ def numericalTimeSlot(day):
         "Saturday_PM": 13
     }
     return switch.get(day, -1)
+
+
+def timeSlotToStr(timeSlot) -> str:
+    """
+    Returns the time slot str from a numerical time slot
+    :param timeSlot: int
+        Time slot between 1-13
+    :return: str
+        The string for the time slot it is
+    """
+    switch = {
+        1: "Sunday_AM",
+        2: "Monday_AM",
+        3: "Monday_PM",
+        4: "Tuesday_AM",
+        5: "Tuesday_PM",
+        6: "Wednesday_AM",
+        7: "Wednesday_PM",
+        8: "Thursday_AM",
+        9: "Thursday_PM",
+        10: "Friday_AM",
+        11: "Friday_PM",
+        12: "Saturday_AM",
+        13: "Saturday_PM"
+    }
+    return switch.get(timeSlot, "Invalid")
 
 
 class TurnipClass:
@@ -236,9 +252,12 @@ def createTurnipModel(discordID, date):
     )
 
     if len(response['Items']) == 0:
-        raise AttributeError("No data available to make model")
+        raise errors.NoData("No data available to make model")
     elif len(response['Items']) > 1:
-        raise LookupError("System Error, more than one response returned")
+        raise errors.AWSError("System Error, more than one response returned")
+        # A lookup error should in theory never happen because discordID and weekBegining as tied together
+        # as a dual pair key, so each set of data requires both attributes to exist and one the combo can only
+        # exist in one entry together
 
     # Create blank object to hold data
     turnipInstance = TurnipClass()
@@ -264,8 +283,8 @@ def addBuyPrice(discordID, date, bells):
         if successful
     """
     # Works out the date for the beginning of the week
-    if date.strftime('%A') == 'Sunday':
-        date = date + datetime.timedelta(days=2)
+    if date.strftime('%A') == 'Sunday':  # If it's a sunday we need to save the price for the next week actually
+        date = date + datetime.timedelta(days=2)  # So we work out the next week.
     date = date.date()
     beginningOfWeek = date - datetime.timedelta(days=date.weekday())
     day = 'Sunday_AM'
@@ -302,89 +321,193 @@ def addBuyPrice(discordID, date, bells):
             ReturnValues="UPDATED_NEW"
         )
     except Exception as e:
-        raise errors.AWSError("Unable to update table")
+        raise errors.AWSError(e)
 
     return True
 
 
-"""
-Any thing belows this deals directly with commands from main.py
-"""
-
-
-def createCurrentSummary(discordID):
+def clearErrors(discordID, date) -> str:
     """
-    Creates the Turnip Summary for the last week
+    Attempts to remove data causing errors from Database
+    :param date: datetime
+        The datetime to correct for
     :param discordID: str
-        DiscordID for the person to check for
+        The user's Discord ID
     :return: str
-        The summary report
+        The list of day/times removes
     """
-    date = datetime.datetime.now()
-
+    # Work out the beginning of the week
+    beginningOfWeek = date - datetime.timedelta(days=date.weekday())
+    # We check if we actually need to fix errors by making sure data already present can't produce a report
     try:
-        model = createTurnipModel(discordID, date)
-        return model.summary()
+        if bool((createTurnipModel(discordID, datetime.datetime.now()).summary())) is True:
+            raise errors.DataCorrect("Nothing to correct")
     except AttributeError:
-        raise Exception("No data available to make model")
+        raise errors.NoData("No data available to make model")
     except LookupError as e:
-        raise Exception("Internal Error, sorry >.< \n Issue has been reported to operator. \n (Too Many Responses)")
-
-
-def addSpecifiedData(discordID, date, time, bells):
-    """
-    Allows for adding data on a specific date and time
-    :param discordID: str
-        User's discordID
-    :param date: str
-        Date to add the data for
-    :param time: str
-        Time to add the data for in either PM or AM
-    :param bells: str
-        The sale price
-    :return:
-        Success message
-    """
-    try:
-        date = datetime.datetime.strptime(date, '%d/%m/%Y')
-    except ValueError:
-        raise errors.InvalidDateFormat("Date format incorrect")
-    time = time.upper()  # Turns the time given into Uppercase
-    if not bells.isdigit():
-        raise Exception("Bells must be given as a number! E.g 1-9")
-    elif time == 'AM' or time == 'PM':
+        raise errors.InternalError(e)
+    # We query the DB for the current copy of the data
+    response = table.query(
+        KeyConditionExpression=Key('discordID').eq(str(discordID)) &
+                               Key('weekBegining').eq(str(beginningOfWeek.strftime('%d/%m/%Y')))
+    )
+    if len(response['Items']) == 0:
+        raise errors.NoData("No data available to make model")
+    elif len(response['Items']) > 1:
+        raise errors.InternalError("Too Many Responses")
+    # we take the response and for each day we turn it into it's numerical id
+    dates = []
+    removedDates = []
+    i = response['Items'][0]
+    for day in i['timeline']:  # for each day in the response
+        timeSlot = numericalTimeSlot(str(day))
+        if timeSlot != 1:
+            dates.append(timeSlot)
+    dates.sort()  # Sort numerical dates out in order
+    for x in range(len(dates)):  # for each date in the list
+        lastDate = dates.pop()  # pop date
+        removedDates.append(timeSlotToStr(lastDate).replace("_", " "))  # add it to the list of removed dates
         try:
-            if addData(discordID, date, time, bells):
-                return "Added price of {} bells for {} at {}".format(bells,
-                                                                     date.strftime('%d/%m/%Y'),
-                                                                     time)
-        except errors.InvalidDateTime:
-            raise errors.InvalidDateTime("Time given to internal system was Invalid! \n"
-                                         "Has to be either `AM` or `PM`")
-        except errors.InvalidPeriod:
-            raise errors.InvalidPeriod("You can't give me a time for Sunday!\n")
-        except errors.AWSError:
-            pass
-    else:
-        raise errors.InvalidDateTime("Time isn't correct, has to be either `AM` or `PM`")
+            # We remove that date we popped from the the DB
+            table.update_item(
+                Key={
+                    'discordID': str(discordID),
+                    'weekBegining': str(beginningOfWeek.strftime('%d/%m/%Y'))
+                },
+                UpdateExpression="Remove timeline.{}".format(timeSlotToStr(lastDate)),
+                ReturnValues="UPDATED_NEW"
+
+            )
+        except Exception as e:
+            raise errors.AWSError(e)
+        # We then check if we can then create a model.
+        if bool((createTurnipModel(discordID, datetime.datetime.now()).summary())) is True:
+            # if we can create a model, then we break
+            break
+        # if not the loop continues to remove dates in order till we can create a model
+    # if we finish the loop, then we return all the dates removed.
+    strReply = ""
+    for date in removedDates:
+        strReply = strReply + "{}, ".format(date)
+    return strReply
+    # We don't remove the Sunday_AM reference because we error check that value
+    # before it's entered anyway so will always be within range being the first value
 
 
-def addPurchasePrice(discordID, bells):
+def deleteTurnipData(discordID: str) -> int:
     """
-    Add the turnip price to the DB
+    Delete all turnip data from a given user
     :param discordID: str
-        User's discordID
-    :param bells: int
-        The cost of turnips
-    :return: boolean
-        if successful
+        Discord ID of the User we want to delete turnip data for
+    :return: bool
+        If the operation was successful or not
     """
-    if not bells.isdigit():
-        raise ValueError("Bells must be given as a number! E.g 1-9")
+    deleteCount = 0
     try:
-        addBuyPrice(discordID, datetime.datetime.now(), bells)
-        return "Added purchase price of {} bells from Daisy Mae".format(bells)
-    except errors.AWSError as e:
-        raise Exception(e)
-    except errors.BellsOutOfRange as e:
-        raise errors.BellsOutOfRange(e)
+        # We query the DB for all the entries the user has made, so we can get the sort key needed to delete items
+        response = table.query(
+            KeyConditionExpression=Key('discordID').eq(str(discordID))
+        )
+        if response['Count'] <= 0:
+            raise errors.NoData("No data in database")
+        else:
+            for entries in response['Items']:
+                deleteResponse = table.delete_item(
+                    Key={
+                        'discordID': discordID,
+                        'weekBegining': entries['weekBegining']
+                    }
+                )
+                if deleteResponse["ResponseMetadata"]['HTTPStatusCode'] != 200:
+                    raise errors.AWSError("Unable to delete entry")
+                else:
+                    deleteCount = deleteCount + 1
+    except Exception as e:
+        pass
+    return deleteCount
+
+
+def removePrice(discordID: str, date: datetime, time: str) -> bool:
+    """
+    Removes a price entry for a specified date and time
+    :param discordID: str
+        Discord ID of user
+    :param date: datetime
+        dateTme to delete entry for
+    :param time: str
+        Either PM or AM (Doesn't matter for Sunday)
+    :return: bool
+        If delete was successful or not.
+    """
+    date = date.date()
+    beginningOfWeek = date - datetime.timedelta(days=date.weekday())
+    day = date.strftime('%A')
+    # Works out the field to place the data into.
+    if day == "Sunday":
+        day = "Sunday_AM"
+    elif time == 'AM':
+        day = day + '_AM'
+    elif time == 'PM':
+        day = day + '_PM'
+    else:  # If an invalid date was given
+        raise errors.InvalidDateTime('Invalid time operator')
+    # Issue update command to DB to delete field
+    updateResponse = table.update_item(
+        Key={
+            'discordID': discordID,
+            'weekBegining': str(beginningOfWeek.strftime('%d/%m/%Y'))
+        },
+        UpdateExpression='REMOVE timeline.{}'.format(day),
+        ReturnValues='UPDATED_OLD',
+    )
+    # If we get something other than a 200, we raise an error from AWS
+    if updateResponse['ResponseMetadata']['HTTPStatusCode'] != 200:
+        raise errors.AWSError("Unable to delete entry on DB")
+    # Then we check if the response given has the date we asked
+    if "Attributes" in updateResponse:
+        if day in updateResponse['Attributes']['timeline']:
+            return True  # If it does we return true
+    return False  # Else we return false
+
+
+def daySort(day):
+    day = day.split(" ")[0]
+    return {'Sunday': 0,
+            'Monday': 1,
+            "Tuesday": 2,
+            "Wednesday": 3,
+            "Thursday": 4,
+            "Friday": 5,
+            "Saturday": 6}[day]
+
+
+def getPrices(discordID: str, date: datetime) -> dict:
+    """
+    Get a dict with all the prices the user has for a week.
+    :param date: datetime
+        the datetime to look for
+    :param discordID: str
+        The discord ID of the user
+    :return: dict
+        A dict will all the days and the prices they've entered
+    """
+    date = date.date()
+    beginningOfWeek = date - datetime.timedelta(days=date.weekday())
+
+    response = table.query(
+        KeyConditionExpression=Key('discordID').eq(str(discordID)) &
+                               Key('weekBegining').eq(str(beginningOfWeek.strftime('%d/%m/%Y')))
+    )
+    if len(response['Items']) == 0:
+        raise errors.NoData("No data available to make model")
+
+    tempDict = {}
+    i = response['Items'][0]
+    for day in i['timeline']:
+        if "Sunday" in day:
+            tempDict["Sunday Buy Price"] = int(i['timeline'][day])
+        else:
+            date = day.split("_")
+            tempDict["{} {}".format(date[0], date[1])] = int(i['timeline'][day])
+    return dict(sorted(tempDict.items(), key=lambda t: daySort(t[0])))
+

@@ -3,7 +3,6 @@ This python script is responsible for creating images for
 a user's Turnip Summary and then uploading to AWS S3.
 """
 from PIL import Image, ImageDraw, ImageFont
-import auth
 import boto3
 import botocore.config as bcc
 from boto3.s3.transfer import S3Transfer
@@ -15,13 +14,18 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.font_manager as fm
 import errors
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 
 # Initiate session
 # Config to limit retry attempts
 boto3Config = bcc.Config(connect_timeout=5, read_timeout=60, retries={'max_attempts': 1})
 session = boto3.session.Session()
-client = session.client('s3', region_name=auth.aws_region_name, endpoint_url=auth.endpoint_url,
-                        aws_access_key_id=auth.aws_access_key_id, aws_secret_access_key=auth.aws_secret_access_key,
+client = session.client('s3', region_name=os.environ.get("S3_region_name"),
+                        endpoint_url=os.environ.get("endpoint_url"),
+                        aws_access_key_id=os.environ.get("S3_access_key_id"),
+                        aws_secret_access_key=os.environ.get("S3_secret_access_key"),
                         config=boto3Config)
 transfer = S3Transfer(client)
 
@@ -71,6 +75,8 @@ class SummaryImage:
         self.turnip_data = TurnipData
         self.discordID = discordID
         self.fileName = "{}-{}.png".format(discordID, datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+        self.aws_bucket = os.environ.get("S3_bucket")
+        self.CDNLink = os.environ.get("CDNLink")
 
     def createImage(self) -> None:
         """
@@ -99,6 +105,7 @@ class SummaryImage:
             y = y + 29
 
         image.save("tempHolding/{}".format(self.fileName), optimize=True, quality=20)
+        image.close()
         self.created = True
 
     def createGraph(self) -> None:
@@ -149,6 +156,9 @@ class SummaryImage:
            ncol=2, mode="expand", borderaxespad=0., framealpha=0, prop=prop)
         # Save image to temp location
         plt.savefig("tempHolding/graph/{}".format(self.fileName), transparent=True, bbox_inches='tight')
+        # If we don't close the plt we end up with a memory hogging issue, where each request will add 3-5mb of ram used
+        # and won't release it after the function has ended.
+        plt.close()
 
         # Uses Pillow to form final image with boarder
         templateImage = Image.open('files/graphTemplate.png')
@@ -175,6 +185,8 @@ class SummaryImage:
         newImage.save("tempHolding/Graph{}".format(self.fileName))  # Save image to temp location
         self.graphCreated = True
         os.remove("tempHolding/graph/{}".format(self.fileName))  # Remove the temp image from matplotlib
+        templateImage.close()
+        graphImage.close()
 
     def uploadImage(self) -> str:
         """
@@ -187,11 +199,11 @@ class SummaryImage:
         try:
             # Upload files to S3
             client.upload_file("tempHolding/{}".format(self.fileName),
-                           auth.aws_bucket,
+                           self.aws_bucket,
                            "TurnipBot/predictions/{}".format(self.fileName),
                            ExtraArgs={'ACL': 'public-read'})
             os.remove("tempHolding/{}".format(self.fileName))  # remove temp file
-            return "{}/TurnipBot/predictions/{}".format(auth.CDNLink, self.fileName)
+            return "{}/TurnipBot/predictions/{}".format(self.CDNLink, self.fileName)
         except be.ClientError as e:
             os.remove("tempHolding/Graph{}".format(self.fileName))
             raise errors.AWSError(e)
@@ -210,11 +222,11 @@ class SummaryImage:
         try:
             # Upload files to S3
             client.upload_file("tempHolding/Graph{}".format(self.fileName),
-                               auth.aws_bucket,
+                               self.aws_bucket,
                                "TurnipBot/predictions/Graph{}".format(self.fileName),
                                ExtraArgs={'ACL': 'public-read'})
             os.remove("tempHolding/Graph{}".format(self.fileName))  # remove temp file
-            return "{}/TurnipBot/predictions/Graph{}".format(auth.CDNLink, self.fileName)
+            return "{}/TurnipBot/predictions/Graph{}".format(self.CDNLink, self.fileName)
         except be.ClientError as e:
             os.remove("tempHolding/Graph{}".format(self.fileName))
             raise errors.AWSError(e)
