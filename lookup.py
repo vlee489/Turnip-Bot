@@ -92,12 +92,12 @@ class Lookup(commands.Cog):
             embedded = discord.Embed(title='Events Today', description=events['message'], color=0xCF70D3)
             embedded.set_author(name="Turnip Bot",
                                 url="https://github.com/vlee489/Turnip-Bot/",
-                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                                icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
             for x in range(len(events['events'])):  # For each event we add a field and the event info
                 embedded.add_field(name="Events {}:".format(x + 1), value=events['events'][x],
                                    inline=False)
             embedded.set_footer(text="Info from nookipedia.com",
-                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/Nookipedia.png")
+                                icon_url="https://cdn.vlee.me.uk/TurnipBot/Nookipedia.png")
             await ctx.send(embed=embedded)
 
 

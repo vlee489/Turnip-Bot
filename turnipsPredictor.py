@@ -84,7 +84,7 @@ class Turnips(commands.Cog):
                                      color=0xCF70D3)
             embedded.set_author(name="Turnip Bot",
                                 url="https://github.com/vlee489/Turnip-Bot/",
-                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                                icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
             embedded.set_image(url=img_URL)
             embedded.set_footer(text="Turnip Bot", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
             embedded.timestamp = datetime.datetime.now()
@@ -187,7 +187,7 @@ class Turnips(commands.Cog):
                                      color=0xCF70D3)
             embedded.set_author(name="Turnip Bot",
                                 url="https://github.com/vlee489/Turnip-Bot/",
-                                icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                                icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
             embedded.set_image(url=img_URL)
             embedded.set_footer(text="Turnip Bot", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
             embedded.timestamp = datetime.datetime.now()

@@ -26,7 +26,7 @@ class Others(commands.Cog):
         embedded = discord.Embed(title=joke, color=0xCF70D3)
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
-                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                            icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         embedded.set_footer(text="Jokes from pyjok.es")
         await ctx.send(embed=embedded)
 
@@ -38,7 +38,7 @@ class Others(commands.Cog):
                                  color=0xCF70D3)
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
-                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                            icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         embedded.set_footer(text="Turnip Bot by vlee489")
         await ctx.send(embed=embedded)
 
@@ -50,7 +50,7 @@ class Others(commands.Cog):
                                  color=0xCF70D3)
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
-                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                            icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         embedded.set_footer(text="Turnip Bot by vlee489")
         await ctx.send(embed=embedded)
 
@@ -61,7 +61,7 @@ class Others(commands.Cog):
                                  color=0xCF70D3)
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
-                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+                            icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         embedded.add_field(name="Version:", value="Alpha 7.0 RC1", inline=True)
         embedded.add_field(name="Latency:", value="{}ms".format(round(self.bot.latency * 1000, 2)), inline=True)
 
