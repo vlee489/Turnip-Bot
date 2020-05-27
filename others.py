@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv(".env")
 
-petPicNumber = 44
+petPicNumber = 65
 
 
 class Others(commands.Cog):
@@ -27,7 +27,7 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
-        embedded.set_footer(text="Jokes from pyjok.es")
+        embedded.set_footer(text="Jokes from pyjok.es", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         await ctx.send(embed=embedded)
 
     @commands.command(name='credits',
@@ -39,7 +39,7 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
-        embedded.set_footer(text="Turnip Bot by vlee489")
+        embedded.set_footer(text="Turnip Bot by vlee489", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         await ctx.send(embed=embedded)
 
     @commands.command(name='add',
@@ -51,7 +51,7 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
-        embedded.set_footer(text="Turnip Bot by vlee489")
+        embedded.set_footer(text="Turnip Bot by vlee489", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         await ctx.send(embed=embedded)
 
     @commands.command(name='stats',
@@ -71,7 +71,21 @@ class Others(commands.Cog):
         embedded.add_field(name="Kofi Donations", value="https://ko-fi.com/vlee489", inline=False)
         embedded.add_field(name="Issues report", value="https://github.com/vlee489/Turnip-Bot/issues", inline=False)
         embedded.add_field(name="Discord Support Server", value="https://discord.gg/JPrC6c2", inline=False)
-        embedded.set_footer(text="Turnip Bot by vlee489")
+        embedded.set_footer(text="Turnip Bot by vlee489", icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
+        await ctx.send(embed=embedded)
+
+    @commands.command(name='pet', help="Get a picture of a pet",
+                      pass_context=True)
+    async def pet(self, ctx):
+        embedded = discord.Embed(title='Pets!', url='https://github.com/vlee489/Turnip-Bot/wiki/Credits',
+                                 color=0xCF70D3)
+        embedded.set_author(name="Turnip Bot",
+                            url="https://github.com/vlee489/Turnip-Bot/",
+                            icon_url="https://vleedn.fra1.cdn.digitaloceanspaces.com/TurnipBot/icon.png")
+        ran = numpy.random.randint(0, petPicNumber)
+        embedded.set_image(url="{}/TurnipBot/pets/{}.png".format(self.CDNLink, ran))
+        embedded.set_footer(text="Turnip Bot | Picture No.{}".format(ran),
+                            icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         await ctx.send(embed=embedded)
 
 
