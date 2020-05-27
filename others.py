@@ -8,6 +8,7 @@ import pyjokes
 import numpy
 import os
 from dotenv import load_dotenv
+import json
 
 load_dotenv(".env")
 
@@ -87,6 +88,20 @@ class Others(commands.Cog):
         embedded.set_footer(text="Turnip Bot | Picture No.{}".format(ran),
                             icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
         await ctx.send(embed=embedded)
+
+    @commands.command(name='changePrefix', help="Change the command prefix for this server\n"
+                                                "<newPrefix>: This is the prefix you now want to use",
+                      pass_context=True, aliases=['changeprefix'])
+    async def changePrefix(self, ctx, newPrefix):
+        if ctx.message.author.id == ctx.message.guild.owner.id:
+            with open('prefix.json', 'r') as prefixFile:
+                prefixes = json.load(prefixFile)
+            prefixes[str(ctx.guild.id)] = newPrefix
+            with open('prefix.json', 'w') as prefixFile:
+                json.dump(prefixes, prefixFile, indent=4)
+            await ctx.send("Prefix for Turnip Bot has been changed to `{}` for this server".format(newPrefix))
+        else:
+            await ctx.send("Error: Prefix can only be changed by server owner!")
 
 
 def setup(bot):

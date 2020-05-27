@@ -208,3 +208,5 @@ auth.py
 lookupAPI/
 
 pictureConverter.py
+
+prefix.json
