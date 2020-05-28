@@ -21,7 +21,7 @@ extensions = [
 
 
 # Gets the prefix for the servers
-def getPrefix(message):
+def getPrefix(client, message):
     with open('prefix.json', 'r') as f:
         prefixes = json.load(f)
     return prefixes[str(message.guild.id)]
