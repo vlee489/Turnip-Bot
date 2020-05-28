@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
+import json
 
 load_dotenv(".env")
 TOKEN = os.environ.get("discord_Token")
@@ -18,11 +19,20 @@ extensions = [
     'user'
 ]
 
-bot = commands.Bot(command_prefix='<')
 
-helloMessageFile = open("join.txt")
-helloMessage = helloMessageFile.read()
-helloMessageFile.close()
+# Gets the prefix for the servers
+def getPrefix(client, message):
+    with open('prefix.json', 'r') as f:
+        prefixes = json.load(f)
+    return prefixes[str(message.guild.id)]
+
+
+bot = commands.Bot(command_prefix=getPrefix)
+
+helloMessage = "Hello There :wave:, use `<help` to get started"
+if os.path.exists("join.txt"):
+    with open("join.txt", 'r') as f:
+        helloMessage = f.read()
 
 
 # When the bot is loaded
@@ -57,10 +67,28 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_guild_join(guild):
+    # This adds the prefix to the file
+    with open('prefix.json', 'r') as prefixFile:
+        prefixes = json.load(prefixFile)
+    prefixes[str(guild.id)] = "<"
+    with open('prefix.json', 'w') as prefixFile:
+        json.dump(prefixes, prefixFile, indent=4)
+    # Send the hello message
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
             await channel.send(helloMessage)
             break
+
+
+@bot.event
+async def on_guild_remove(guild):
+    # Removed guild from prefix file if bot is removed
+    with open('prefix.json', 'r') as prefixFile:
+        prefixes = json.load(prefixFile)
+    prefixes.pop(str(guild.id))
+    with open('prefix.json', 'w') as prefixFile:
+        json.dump(prefixes, prefixFile, indent=4)
+
 
 # Runs the whole show
 if __name__ == "__main__":

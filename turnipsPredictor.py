@@ -73,7 +73,8 @@ class Turnips(commands.Cog):
             if bool(report) is False:
                 await ctx.send("Failed to create a report with data provided\n"
                                "You've given some invalid bell amount somewhere\n"
-                               "You can run `<removeInvalidData` to try and fix this issue")
+                               "You can run `<removeInvalidData` to try and fix this issue\n"
+                               "There's a guide to help fix this at https://bit.ly/turnipBot")
                 print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
                                                                             datetime.datetime.now(), ))
                 return
@@ -129,7 +130,8 @@ class Turnips(commands.Cog):
             if bool(report) is False:
                 await ctx.send("Failed to create a report with data provided\n"
                                "You've given some invalid bell amount somewhere\n"
-                               "You can run `<removeInvalidData` to try and fix this issue")
+                               "You can run `<removeInvalidData` to try and fix this issue\n"
+                               "There's a guide to help fix this at https://bit.ly/turnipBot")
                 print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
                                                                             datetime.datetime.now(), ))
                 return
@@ -176,7 +178,8 @@ class Turnips(commands.Cog):
             if bool(report) is False:
                 await ctx.send("Failed to create a report with data provided\n"
                                "You've given some invalid bell amount somewhere\n"
-                               "You can run `<removeInvalidData` to try and fix this issue")
+                               "You can run `<removeInvalidData` to try and fix this issue\n"
+                               "There's a guide to help fix this at https://bit.ly/turnipBot")
                 print("REPORT ERROR:\nDiscordID: {}\nTime:{}\n-----".format(ctx.message.author.id,
                                                                             datetime.datetime.now(), ))
                 return
@@ -220,7 +223,8 @@ class Turnips(commands.Cog):
             return
 
     @commands.command(name='setBuyPrice',
-                      help="Set the Price you bought the turnips for from Daisy Mae this week."
+                      help="Set the Price you bought the turnips for from Daisy Mae this week.\n"
+                           "This should be the price from YOUR OWN ISLAND!!!"
                            "\n<bells>: The amount of bells each turnip cost."
                            "\n[date]: OPTIONAL Set a price for a specific week in DD/MM/YYYY",
                       aliases=['setbuyprice', 'sbp'])
@@ -247,7 +251,7 @@ class Turnips(commands.Cog):
             return
 
     @commands.command(name='removeInvalidData',
-                      help="Helps find and remove invalid data from to make your turnip summary generate.\n",
+                      help="Attempts to find and remove invalid data to make your turnip summary generate.\n",
                       aliases=["correctErrors", "removeinvaliddata", 'rid'])
     async def correctErrors(self, ctx, date="Today"):
         try:
@@ -290,12 +294,14 @@ class Turnips(commands.Cog):
         time = time.upper()  # Turns the time given into Uppercase
         try:
             date = getDate(date)
-            responseBool = turnipCalculator.removePrice(ctx.message.author.id, date, time)
+            responseBool = turnipCalculator.removePrice(str(ctx.message.author.id), date, time)
             if responseBool:
                 await ctx.send("We have removed the the entry for {} on {}".format(time, date.strftime("%d/%m/%Y")))
+                return
             else:
                 await ctx.send("We where **Unable** to remove the entry for {} on {} "
                                "\nLikely doesn't exist".format(time, date.strftime("%d/%m/%Y")))
+                return
         except errors.InvalidDateTime:
             await ctx.send("Error: Invalid date given!")
         except errors.InvalidDateFormat:
@@ -310,7 +316,7 @@ class Turnips(commands.Cog):
         try:
             date = getDate(date)
             printOut = "```\n"
-            prices = turnipCalculator.getPrices(ctx.message.author.id, date)
+            prices = turnipCalculator.getPrices(str(ctx.message.author.id), date)
             for items in prices:
                 printOut = printOut + "{:16}: {:4}\n".format(items, prices[items])
             printOut = printOut + "```"
@@ -325,7 +331,6 @@ class Turnips(commands.Cog):
             await ctx.send(embed=embedded)
         except errors.InvalidDateFormat:
             await ctx.send("Error: Invalid Date Format")
-
 
 
 def setup(bot):

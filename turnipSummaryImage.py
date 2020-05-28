@@ -56,14 +56,6 @@ basewidth = 658  # Location of where the &ages line up on the graph image
 
 
 class SummaryImage:
-    """
-    Function for creating a summary Image
-    """
-    turnip_data = None
-    discordID = None
-    created = False
-    graphCreated = False
-
     def __init__(self, TurnipData, discordID) -> None:
         """
         Constructor
@@ -77,6 +69,8 @@ class SummaryImage:
         self.fileName = "{}-{}.png".format(discordID, datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
         self.aws_bucket = os.environ.get("S3_bucket")
         self.CDNLink = os.environ.get("CDNLink")
+        self.created = False
+        self.graphCreated = False
 
     def createImage(self) -> None:
         """
