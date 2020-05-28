@@ -56,6 +56,7 @@ async def on_ready():
                         break  # Break so it doesn't spam the server with more than one message
         os.remove("message.txt")  # remove message.txt file
 
+
 # Handles incorrect input from user
 @bot.event
 async def on_command_error(ctx, error):
