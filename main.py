@@ -21,9 +21,9 @@ extensions = [
 
 
 # Gets the prefix for the servers
-def getPrefix(client, message):
-    with open('prefix.json', 'r') as file:
-        prefixes = json.load(file)
+def getPrefix(message):
+    with open('prefix.json', 'r') as f:
+        prefixes = json.load(f)
     return prefixes[str(message.guild.id)]
 
 
@@ -31,8 +31,8 @@ bot = commands.Bot(command_prefix=getPrefix)
 
 helloMessage = "Hello There :wave:, use `<help` to get started"
 if os.path.exists("join.txt"):
-    with open("join.txt", 'r') as file:
-        helloMessage = file.read()
+    with open("join.txt", 'r') as f:
+        helloMessage = f.read()
 
 
 # When the bot is loaded

@@ -4,28 +4,23 @@ This cog deals all the lookup commands
 import asyncio
 from discord.ext import commands, tasks
 import discord
-from lookupAPI import nookipediaAPI
+from lookupAPI import nookipediaAPI, localLookup
 import os
 from dotenv import load_dotenv
 
 load_dotenv(".env")
 
 
-async def getVillagerList():
-    return await nookipediaAPI.NookipediaAPI(os.environ.get("nookipedia_API_key")).getVillagerList()
-
-
 class Lookup(commands.Cog):
     nookAPI = nookipediaAPI.NookipediaAPI(os.environ.get("nookipedia_API_key"))
+    localAPI = localLookup.LocalLookup()
 
     def __init__(self, bot):
-        loop = asyncio.get_event_loop()
-        self.villagerList = loop.run_until_complete(getVillagerList())
         self.bot = bot
 
     @tasks.loop(hours=6)
     async def updateLists(self):
-        self.villagerList = await self.nookAPI.getVillagerList()
+        await self.localAPI.updateData()
         await self.nookAPI.clearOutdatedCache()
 
     @commands.command(name='villager',
@@ -76,7 +71,6 @@ class Lookup(commands.Cog):
             embeded = discord.Embed.from_dict(response.response)
             await ctx.send(embed=embeded)
 
-
     @commands.command(name='eventsToday',
                       help="Get an overview of all the events on today in AC\n",
                       aliases=['eventstoday'])
@@ -98,6 +92,21 @@ class Lookup(commands.Cog):
                                    inline=False)
             embedded.set_footer(text="Info from nookipedia.com",
                                 icon_url="https://cdn.vlee.me.uk/TurnipBot/Nookipedia.png")
+            await ctx.send(embed=embedded)
+
+    @commands.command(name='DIY',
+                      help="Get an overview of a DIY recipe\n"
+                           "<diy>: The item you want to lookup",
+                      aliases=['diy'])
+    async def DIYOverview(self, ctx, diy):
+        with ctx.typing():
+            response = await self.localAPI.getDiy(diy)
+            if response is None:
+                await ctx.send("Couldn't find DIY Recipe\n"
+                               "If the recipe's name is in 2 part, use \" to enclose the name.\n"
+                               "E.G. \"gold helmet\"")
+                return
+            embedded = discord.Embed.from_dict(response.response)
             await ctx.send(embed=embedded)
 
 
