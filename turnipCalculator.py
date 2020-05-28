@@ -510,4 +510,3 @@ def getPrices(discordID: str, date: datetime) -> dict:
             date = day.split("_")
             tempDict["{} {}".format(date[0], date[1])] = int(i['timeline'][day])
     return dict(sorted(tempDict.items(), key=lambda t: daySort(t[0])))
-

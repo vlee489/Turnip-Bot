@@ -53,8 +53,8 @@ class Lookup(commands.Cog):
             critter = critter.title()
             response = await self.nookAPI.getCritter(critter)
             if response is None:
-                await ctx.send("Couldn't find villager\n"
-                               "If the villager's name is in 2 part, use \" to enclose the name.\n"
+                await ctx.send("Couldn't find critter\n"
+                               "If the critter's name is in 2 part, use \" to enclose the name.\n"
                                "E.G. \"Banded Dragonfly\"")
                 return
             embeded = discord.Embed.from_dict(response.response)
@@ -69,9 +69,9 @@ class Lookup(commands.Cog):
             fossil = fossil.title()
             response = await self.nookAPI.getFossil(fossil)
             if response is None:
-                await ctx.send("Couldn't find villager\n"
-                               "If the villager's name is in 2 part, use \" to enclose the name.\n"
-                               "E.G. \"Banded Dragonfly\"")
+                await ctx.send("Couldn't find fossil\n"
+                               "If the fossil's name is in 2 part, use \" to enclose the name.\n"
+                               "E.G. \"Tyrannosaurus Rex\"")
                 return
             embeded = discord.Embed.from_dict(response.response)
             await ctx.send(embed=embeded)
