@@ -13,6 +13,7 @@ To get started with me use `<help` to find out what commands I have, but here's 
    `<villager`: Look up a villager
    `<critter`: Lookup bugs and fish
    `<fossils`: Look up fossils
+   `<diy`: Lookup a DIY recipe
    `<eventsToday`: Get a list of events on today in AC
 
 To see details on the bot and what's planned as well as to Donate
