@@ -7,12 +7,15 @@ import datetime
 import turnipSummaryImage
 import discord
 import errors
+import timezoner
+
+getDateAcquirer = timezoner.Timezoner("userData")
 
 
-def getDate(date: str) -> datetime:
+def getDate(date: str, discordID: str) -> datetime:
     try:
         if date == "Today":
-            date = datetime.datetime.now()
+            date = getDateAcquirer.getCurrentDatetime(discordID)
         else:
             date = datetime.datetime.strptime(date, '%d/%m/%Y')
     except ValueError:
@@ -36,7 +39,7 @@ class Turnips(commands.Cog):
             response = "Bells must be given as a number! E.g 1-9"
         elif time == 'AM' or time == 'PM':
             try:
-                date = getDate(date)
+                date = getDate(date, ctx.message.author.id)
                 if turnipCalculator.addData(ctx.message.author.id, date, time, bells):
                     response = "Added price of {} bells for {} at {}".format(bells,
                                                                              date.strftime('%d/%m/%Y'),
@@ -67,7 +70,7 @@ class Turnips(commands.Cog):
                       aliases=['TurnipSummary', 'turnipsummary'])
     async def currentTurnipSummary(self, ctx, date="Today"):
         try:
-            date = getDate(date)
+            date = getDate(date, ctx.message.author.id)
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -124,7 +127,7 @@ class Turnips(commands.Cog):
                       aliases=['TurnipSummaryText', 'turnipsummarytext'])
     async def currentTurnipSummaryText(self, ctx, date="Today"):
         try:
-            date = getDate(date)
+            date = getDate(date, ctx.message.author.id)
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -172,7 +175,7 @@ class Turnips(commands.Cog):
                       aliases=['tsg', 'turnipsummarygraph', 'turnipSummaryGraph'])
     async def tsgraph(self, ctx, date="Today"):
         try:
-            date = getDate(date)
+            date = getDate(date, ctx.message.author.id)
             date = date + datetime.timedelta(days=1)
             report = turnipCalculator.createTurnipModel(ctx.message.author.id, date).summary()
             if bool(report) is False:
@@ -233,9 +236,10 @@ class Turnips(commands.Cog):
             await ctx.send("Bells must be given as a number! E.g 1-9")
             return
         try:
-            date = getDate(date)
+            date = getDate(date, ctx.message.author.id)
             turnipCalculator.addBuyPrice(ctx.message.author.id, date, bells)
-            await ctx.send("Added purchase price of {} bells from Daisy Mae on {}".format(bells, date))
+            await ctx.send("Added purchase price of {} bells from Daisy Mae on {}".format(bells,
+                                                                                          date.strftime("%d/%m/%Y")))
         except errors.BellsOutOfRange as e:
             await ctx.send("Purchase price must be between 90-110 bells")
             return
@@ -255,7 +259,7 @@ class Turnips(commands.Cog):
                       aliases=["correctErrors", "removeinvaliddata", 'rid'])
     async def correctErrors(self, ctx, date="Today"):
         try:
-            date = getDate(date)
+            date = getDate(date, ctx.message.author.id)
             removedDate = turnipCalculator.clearErrors(ctx.message.author.id, date)
             await ctx.send("I've removed all the data that was causing an error now!\n"
                            "You should be able to run summary commands again now.\n"
@@ -293,7 +297,7 @@ class Turnips(commands.Cog):
     async def removePrice(self, ctx, time, date):
         time = time.upper()  # Turns the time given into Uppercase
         try:
-            date = getDate(date)
+            date = getDate(date, ctx.message.author.id)
             responseBool = turnipCalculator.removePrice(str(ctx.message.author.id), date, time)
             if responseBool:
                 await ctx.send("We have removed the the entry for {} on {}".format(time, date.strftime("%d/%m/%Y")))
@@ -314,7 +318,7 @@ class Turnips(commands.Cog):
                       aliases=['gp', 'GetPrice', 'getprice'])
     async def viewPrice(self, ctx, date="Today"):
         try:
-            date = getDate(date)
+            date = getDate(date, ctx.message.author.id)
             printOut = "```\n"
             prices = turnipCalculator.getPrices(str(ctx.message.author.id), date)
             for items in prices:
@@ -331,6 +335,23 @@ class Turnips(commands.Cog):
             await ctx.send(embed=embedded)
         except errors.InvalidDateFormat:
             await ctx.send("Error: Invalid Date Format")
+
+    @commands.command(name='setTimezone', help="Set your default timezone"
+                                               "\n<timezone>: The TZ database name of your timezone"
+                                               "\nA list of valid TZ dataabse names are at "
+                                               "https://bit.vlee.me.uk/TZ",
+                      aliases=['SetTimezone', 'settimezone'])
+    async def setTimezone(self, ctx, timezone):
+        try:
+            response = getDateAcquirer.addTimezone(ctx.message.author.id, timezone)
+            if response:
+                await ctx.send("Set your timezone to {}".format(timezone.title()))
+            else:
+                await ctx.send("Timezone your provided was invalid, please choose a valid timezone,\n"
+                               "from https://bit.vlee.me.uk/TZ")
+            return
+        except errors.AWSError:
+            await ctx.send("Couldn't add your timezone, try again later.")
 
 
 def setup(bot):
