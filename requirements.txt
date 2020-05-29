@@ -8,3 +8,5 @@ numpy
 aiohttp
 dblpy
 python-dotenv
+pendulum==2.0.0
+setuptools
