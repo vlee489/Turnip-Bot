@@ -16,7 +16,6 @@ def getDate(date: str, discordID: str) -> datetime:
     try:
         if date == "Today":
             date = getDateAcquirer.getCurrentDatetime(discordID)
-            print(date)
         else:
             date = datetime.datetime.strptime(date, '%d/%m/%Y')
     except ValueError:

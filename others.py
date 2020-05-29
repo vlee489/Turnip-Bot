@@ -63,12 +63,12 @@ class Others(commands.Cog):
         embedded.set_author(name="Turnip Bot",
                             url="https://github.com/vlee489/Turnip-Bot/",
                             icon_url="https://cdn.vlee.me.uk/TurnipBot/icon.png")
-        embedded.add_field(name="Version:", value="Alpha 7.0 RC1", inline=True)
+        embedded.add_field(name="Version:", value="Alpha 9.0 RC1", inline=True)
         embedded.add_field(name="Latency:", value="{}ms".format(round(self.bot.latency * 1000, 2)), inline=True)
 
         embedded.add_field(name="Used in number of servers:", value="{} servers".format(len(self.bot.guilds)),
                            inline=False)
-        embedded.add_field(name="Contributors:", value="1", inline=False)
+        embedded.add_field(name="Contributors:", value="2", inline=False)
         embedded.add_field(name="Kofi Donations", value="https://ko-fi.com/vlee489", inline=False)
         embedded.add_field(name="Issues report", value="https://github.com/vlee489/Turnip-Bot/issues", inline=False)
         embedded.add_field(name="Discord Support Server", value="https://discord.gg/JPrC6c2", inline=False)
